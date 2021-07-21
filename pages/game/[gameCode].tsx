@@ -6,10 +6,11 @@ import GameView from '../../components/game/main';
 // but far too much needs to happen to make sense outside of a class component,
 // so this just gets the game code from the router query and passes it on to a
 // class component.
-function Game() {
+export default function RoomCodeParser(): React.ReactElement {
   const router = useRouter();
   const {gameCode} = router.query;
-  return (<GameView gameCode={gameCode} />);
+  if (typeof(gameCode) !== "string") {
+    return null;
+  }
+  return <GameView gameCode={gameCode} />;
 }
-
-export default Game;

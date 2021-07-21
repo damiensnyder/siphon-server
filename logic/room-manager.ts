@@ -33,7 +33,7 @@ class RoomManager {
     settings.gameCode = gameCode;
 
     if (settings.name.length === 0) {
-      settings.name = "My Game";
+      settings.name = "My RoomCodeParser";
     }
 
     this.activeGames[gameCode] = new GameRoom(this.io,

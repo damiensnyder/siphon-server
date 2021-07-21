@@ -5,7 +5,7 @@ import JoinMenu from './join-menu';
 import general from '../general.module.css';
 import styles from './main.module.css';
 
-function HomeView(): React.ReactNode {
+function HomeView(): React.ReactElement {
   useEffect(() => {
     document.title = "Siphon State";
   });
