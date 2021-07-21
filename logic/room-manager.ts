@@ -12,7 +12,9 @@ interface Settings {
 
 // @ts-ignore
 class RoomManager {
-  activeGames: any;
+  activeGames: {
+    [key: string]: typeof GameRoom
+  };
   io: any;
 
   constructor(io) {
@@ -51,7 +53,7 @@ class RoomManager {
   generateGameCode() {
    const numChars: number = ALPHABET.length;
    const gameCodeLength: number = Math.ceil(
-     Math.log(Object.keys(this.activeGames).length + 2) / Math.log(26)) + 1;
+     Math.log(Object.keys(this.activeGames).length + 4) / Math.log(26)) + 1;
 
    let gameCode: string = "";
    while (gameCode == "" || this.activeGames.hasOwnProperty(gameCode)) {
@@ -66,10 +68,8 @@ class RoomManager {
   getActiveGames(req, res): void {
     let foundGames: any[] = [];
 
-    for (const [gameCode, game] of Object.entries(this.activeGames)) {
-      // @ts-ignore
+    for (const [, game] of Object.entries(this.activeGames)) {
       if (!game.settings.private) {
-        // @ts-ignore
         foundGames.push(game.joinInfo());
       }
     }
