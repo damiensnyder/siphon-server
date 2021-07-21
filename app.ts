@@ -26,7 +26,7 @@ nextApp.prepare().then(() => {
   });
 
   // Send people who join the game to the game room
-  expressApp.get('/game/:gameCode', (req, res) => {
+  expressApp.get('/game/:roomCode', (req, res) => {
     // @ts-ignore
     GameManager.sendToGame(req, res, nextHandler);
   });

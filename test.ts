@@ -18,7 +18,7 @@ function addParties(gs, numParties: number): void {
 function twoPartiesStart(): void {
   const game: typeof GameRoom = new GameRoom(App.gameManager.io, {
     name: "two parties start",
-    gameCode: "2ps",
+    roomCode: "2ps",
     nation: "Kenderland",
     private: false
   }, () => {});
@@ -30,7 +30,7 @@ function twoPartiesStart(): void {
 function twoPartiesEnd(): void {
   const game: typeof GameRoom = new GameRoom(App.gameManager.io, {
     name: "two parties end",
-    gameCode: "2pe",
+    roomCode: "2pe",
     nation: "Otria",
     private: false
   }, () => {});
@@ -42,7 +42,7 @@ function twoPartiesEnd(): void {
 function twoPartiesVoting(): void {
   const game: typeof GameRoom = new GameRoom(App.gameManager.io, {
     name: "two parties voting",
-    gameCode: "2pv",
+    roomCode: "2pv",
     nation: "Kenderland",
     private: false
   }, () => {});
@@ -57,7 +57,7 @@ function twoPartiesVoting(): void {
 function twoPartiesTwoDecline(): void {
   const game: typeof GameRoom = new GameRoom(App.gameManager.io, {
     name: "two parties two decline",
-    gameCode: "2p2d",
+    roomCode: "2p2d",
     nation: "Kenderland",
     private: false
   }, () => {});
@@ -73,7 +73,7 @@ function twoPartiesTwoDecline(): void {
 function threePartiesStart(): void {
   const game: typeof GameRoom = new GameRoom(App.gameManager.io, {
     name: "three parties start",
-    gameCode: "3ps",
+    roomCode: "3ps",
     nation: "Otria",
     private: false
   }, () => {});
@@ -85,7 +85,7 @@ function threePartiesStart(): void {
 function fourPartiesStart(): void {
   const game = new GameRoom(App.gameManager.io, {
     name: "four parties start",
-    gameCode: "4ps",
+    roomCode: "4ps",
     nation: "Otria",
     private: false
   }, () => {});

@@ -17,10 +17,10 @@ interface Message {
 
 class GameView extends React.Component {
   socket?: any;
-  gameCode: string;
+  roomCode: string;
   gamestateManager: GamestateManager;
   props: {
-    gameCode: string
+    roomCode: string
   };
   state: {
     gs: any,
@@ -28,7 +28,7 @@ class GameView extends React.Component {
     connected: boolean
   };
 
-  constructor(props: {gameCode: string}) {
+  constructor(props: {roomCode: string}) {
     super(props);
     this.gamestateManager = new GamestateManager();
 
@@ -41,14 +41,14 @@ class GameView extends React.Component {
     this.callback = this.callback.bind(this);
   }
 
-  // The game code mysteriously does not load immediately, so this checks every
+  // The room code mysteriously does not load immediately, so this checks every
   // 20 ms until it loads.
   async componentDidMount() {
     let timesChecked = 0;
     let checkForRouter = setInterval(() => {
-      if (this.props.gameCode !== undefined) {
+      if (this.props.roomCode !== undefined) {
         clearInterval(checkForRouter);
-        this.gameCode = this.props.gameCode;
+        this.roomCode = this.props.roomCode;
         this.initializeSocket();
       }
       timesChecked++;
@@ -61,7 +61,7 @@ class GameView extends React.Component {
   // Creates the socket connection to the server and handlers for when messages
   // are received from the server.
   initializeSocket(): void {
-    this.socket = io.connect('/game/' + this.props.gameCode);
+    this.socket = io.connect('/game/' + this.props.roomCode);
 
     this.socket.on('connection', () => {
       this.gamestateManager.updateAfter('connection');
@@ -157,7 +157,7 @@ class GameView extends React.Component {
       <PregameView joined={this.state.gs.pov >= 0}
           gs={this.state.gs}
           callback={this.callback}
-          gameCode={this.props.gameCode} />
+          gameCode={this.props.roomCode} />
     );
   }
 

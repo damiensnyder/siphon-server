@@ -8,9 +8,9 @@ import GameView from '../../components/game/main';
 // class component.
 export default function RoomCodeParser(): React.ReactElement {
   const router = useRouter();
-  const {gameCode} = router.query;
-  if (typeof(gameCode) !== "string") {
+  const {gameCode: roomCode} = router.query;
+  if (typeof(roomCode) !== "string") {
     return null;
   }
-  return <GameView gameCode={gameCode} />;
+  return <GameView roomCode={roomCode} />;
 }

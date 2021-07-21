@@ -41,7 +41,7 @@ class RoomManager {
         this.callback.bind(this));
     res.status = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({gameCode: gameCode}));
+    res.end(JSON.stringify({roomCode: gameCode}));
   }
   
   addTestGame(gameRoom) {

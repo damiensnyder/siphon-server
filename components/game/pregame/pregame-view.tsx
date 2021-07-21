@@ -17,10 +17,10 @@ function joinPanelJsx(props: PregameViewProps) {
   if (!props.joined) {
     return (
       <JoinPanel callback={props.callback}
-          gameCode={props.gameCode} />
+          gameCode={props.roomCode} />
     );
   }
-  return <InviteLink gameCode={props.gameCode} />;
+  return <InviteLink gameCode={props.roomCode} />;
 }
 
 function PregameView(props: PregameViewProps) {

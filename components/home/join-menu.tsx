@@ -26,7 +26,7 @@ class JoinMenu extends React.Component {
     super(props);
 
     this.state = {
-      gameCode: "",
+      roomCode: "",
       fetched: false,
       error: false,
       games: []
@@ -82,7 +82,7 @@ class JoinMenu extends React.Component {
     }
 
     return this.state.games.map((game) => {
-      return <GameItem key={game.gameCode}
+      return <GameItem key={game.roomCode}
                        info={game} />;
     });
   }
@@ -94,7 +94,7 @@ class JoinMenu extends React.Component {
   }
 
   submitCallback() {
-    Router.push('/game/' + this.state.gameCode).then();
+    Router.push('/game/' + this.state.roomCode).then();
   }
 
   render(): React.ReactNode {
@@ -107,7 +107,7 @@ class JoinMenu extends React.Component {
         <div className={general.horizWrapper}>
           <TextInput label={"Game code:"}
                      maxLength={20}
-                     text={this.state.gameCode}
+                     text={this.state.roomCode}
                      textCallback={this.gameCodeCallback.bind(this)}
                      submitCallback={this.submitCallback.bind(this)} />
           <div className={general.spacer}>

@@ -80,7 +80,7 @@ class JoinPanel extends React.Component {
           </div>
         </div>
         <div id={styles.orDiv}>or</div>
-        <InviteLink gameCode={this.props.gameCode} />
+        <InviteLink gameCode={this.props.roomCode} />
       </div>
     );
   }

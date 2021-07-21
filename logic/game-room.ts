@@ -304,7 +304,7 @@ class GameRoom {
   joinInfo() {
     return {
       name: this.settings.name,
-      gameCode: this.settings.gameCode,
+      roomCode: this.settings.roomCode,
       players: this.players.length,
       started: this.gs.started,
       ended: this.gs.ended
