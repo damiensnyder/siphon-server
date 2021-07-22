@@ -1,10 +1,9 @@
 {
-  "name": "siphon-state",
-  "version": "0.4.0",
-  "description": "A multi-player game of politics and corruption. Make and break alliances with other parties as you try to seize control of an eroding state. Implemented with NextJS and TypeScript.",
-  "homepage": "https://www.siphonstate.com/",
+  "name": "siphon-server",
+  "version": "0.1.0",
+  "description": "A webgame server using Next.js, ExpressJS, Typescript, and socket.io. Suitable for turn-based games with nice UIs and not a ton of concurrent players.",
   "private": true,
-  "author": "Damien Snyder <damiensnyder@damiensnyder.com>",
+  "author": "Damien Snyder <damien@damiensnyder.com>",
   "scripts": {
     "build": "next build",
     "test": "tsc logic/*.ts && tsc test.ts && tsc app.ts && node test.js -p $PORT",
