@@ -8,7 +8,7 @@ import HelperBar from "../helper-bar/helper-bar";
 
 interface PregameViewProps {
   joined: boolean,
-  gameCode: string,
+  roomCode: string,
   callback: any,
   gs: any
 }
@@ -17,10 +17,10 @@ function joinPanelJsx(props: PregameViewProps) {
   if (!props.joined) {
     return (
       <JoinPanel callback={props.callback}
-          gameCode={props.roomCode} />
+          roomCode={props.roomCode} />
     );
   }
-  return <InviteLink gameCode={props.roomCode} />;
+  return <InviteLink roomCode={props.roomCode} />;
 }
 
 function PregameView(props: PregameViewProps) {

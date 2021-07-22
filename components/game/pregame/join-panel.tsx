@@ -6,7 +6,7 @@ import general from "../../general.module.css";
 import styles from "./pregame.module.css";
 
 interface JoinPanelProps {
-  gameCode: string,
+  roomCode: string,
   callback: any
 }
 
@@ -80,7 +80,7 @@ class JoinPanel extends React.Component {
           </div>
         </div>
         <div id={styles.orDiv}>or</div>
-        <InviteLink gameCode={this.props.roomCode} />
+        <InviteLink roomCode={this.props.roomCode} />
       </div>
     );
   }

@@ -8,14 +8,14 @@ import styles from './main.module.css';
 import joinStyles from './join-menu.module.css';
 
 class JoinMenu extends React.Component {
-  gameCodeInput: React.RefObject<any>;
+  roomCodeInput: React.RefObject<any>;
   numFetches: number;
   state: {
-    gameCode: string,
+    roomCode: string,
     fetched: boolean,
     error: boolean,
     games: {
-      gameCode: string,
+      roomCode: string,
       nation: string,
       name: string,
       private: false
@@ -32,7 +32,7 @@ class JoinMenu extends React.Component {
       games: []
     }
 
-    this.gameCodeInput = React.createRef();
+    this.roomCodeInput = React.createRef();
     this.numFetches = 0;
   }
 
@@ -42,7 +42,7 @@ class JoinMenu extends React.Component {
 
   componentWillUnmount() {
     this.setState({
-      gameCode: "",
+      roomCode: "",
       fetched: false,
       error: false
     });
@@ -87,9 +87,9 @@ class JoinMenu extends React.Component {
     });
   }
 
-  gameCodeCallback(text) {
+  roomCodeCallback(text) {
     this.setState({
-      gameCode: text
+      roomCode: text
     });
   }
 
@@ -108,7 +108,7 @@ class JoinMenu extends React.Component {
           <TextInput label={"Game code:"}
                      maxLength={20}
                      text={this.state.roomCode}
-                     textCallback={this.gameCodeCallback.bind(this)}
+                     textCallback={this.roomCodeCallback.bind(this)}
                      submitCallback={this.submitCallback.bind(this)} />
           <div className={general.spacer}>
             <button className={general.actionBtn + ' ' + general.priorityBtn}

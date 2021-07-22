@@ -157,7 +157,7 @@ class GameView extends React.Component {
       <PregameView joined={this.state.gs.pov >= 0}
           gs={this.state.gs}
           callback={this.callback}
-          gameCode={this.props.roomCode} />
+          roomCode={this.props.roomCode} />
     );
   }
 

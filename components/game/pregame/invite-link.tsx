@@ -4,11 +4,11 @@ import general from "../../general.module.css";
 import styles from "./pregame.module.css";
 
 class InviteLink extends React.Component {
-  props: {gameCode: string};
+  props: {roomCode: string};
   state: {copied: boolean};
   linkArea: any;
 
-  constructor(props: {gameCode: string}) {
+  constructor(props: {roomCode: string}) {
     super(props);
 
     this.state = {
