@@ -1,6 +1,8 @@
-// @ts-ignore
-const expressApp = require('express')();
-const bodyParser = require('body-parser');
+import Express from "express";
+import BodyParser from "body-parser";
+
+const expressApp: Express = new Express();
+const bodyParser: BodyParser = new BodyParser();
 expressApp.use(bodyParser.urlencoded({extended: true}));
 expressApp.use(bodyParser.json());
 
@@ -11,23 +13,19 @@ const nextJs = require('next');
 const nextApp = nextJs({dev: process.env.NODE_ENV != 'production'});
 const nextHandler = nextApp.getRequestHandler();
 
-// @ts-ignore
 const GameManager = new (require('./logic/room-manager').GameManager)(io);
 
 nextApp.prepare().then(() => {
   expressApp.post('/create', (req, res) => {
-    // @ts-ignore
     GameManager.createGame(req, res);
   });
 
   expressApp.get('/api/activeGames', (req, res) => {
-    // @ts-ignore
     GameManager.getActiveGames(req, res);
   });
 
   // Send people who join the game to the game room
   expressApp.get('/game/:roomCode', (req, res) => {
-    // @ts-ignore
     GameManager.sendToGame(req, res, nextHandler);
   });
 
