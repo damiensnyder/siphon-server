@@ -241,7 +241,7 @@ export default class GameRoom {
     }
   }
 
-  rematch(): void {
+  rematch() {
     this.players.forEach((player) => {player.reset()});
     this.gs = new GameState(this.settings);
     this.players = [];

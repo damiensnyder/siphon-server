@@ -20,7 +20,7 @@ nextApp.prepare().then(() => {
     GameManager.createGame(req, res);
   });
 
-  expressApp.get('/api/activeGames', (req, res) => {
+  expressApp.get('/api/activeRooms', (req, res) => {
     GameManager.getActiveGames(req, res);
   });
 

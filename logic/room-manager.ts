@@ -1,59 +1,59 @@
-import GameRoom from "./game-room";
+import GameRoom, {JoinInfo} from "./game-room";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
-export interface Settings {
+export interface RoomSettings {
   name: string,
   roomCode: string,
-  private: boolean
+  isPrivate: boolean
 }
 
 export default class RoomManager {
-  activeGames: {
+  activeRooms: {
     [key: string]: GameRoom
   };
-  io: any;
+  socket: any;
 
-  constructor(io) {
-    this.io = io;
-    this.activeGames = {};
+  constructor(socket) {
+    this.socket = socket;
+    this.activeRooms = {};
   }
 
-  // Called by a game room when it is ready to tear down. Allows the game code
+  // Called by a game room when it is ready to tear down. Allows the room code
   // to be reused.
   callback(game) {
-    delete this.activeGames[game.settings.roomCode];
+    delete this.activeRooms[game.settings.roomCode];
   }
 
-  // Create a game and send the game code along with status 200.
-  createGame(req, res) {
-    const roomCode: string = this.generateGameCode()
-    const settings: Settings = req.body.settings;
-    settings.roomCode = roomCode;
+  // Create a game room and send the room code along with status 200.
+  createRoom(req, res) {
+    const roomCode: string = this.generateRoomCode()
+    const roomSettings: RoomSettings = req.body.settings;
+    roomSettings.roomCode = roomCode;
 
-    if (settings.name.length === 0) {
-      settings.name = "Untitled Room";
+    if (roomSettings.name.length === 0) {
+      roomSettings.name = "Untitled Room";
     }
 
-    this.activeGames[roomCode] = new GameRoom(this.io,
-        settings,
+    this.activeRooms[roomCode] = new GameRoom(this.socket,
+        roomSettings,
         this.callback.bind(this));
     res.status = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({roomCode: roomCode}));
   }
   
-  addTestGame(gameRoom) {
-    this.activeGames[gameRoom.settings.roomCode] = gameRoom;
+  addTestRoom(gameRoom: GameRoom) {
+    this.activeRooms[gameRoom.settings.roomCode] = gameRoom;
   }
 
-  generateGameCode() {
+  generateRoomCode() {
    const numChars: number = ALPHABET.length;
    const gameCodeLength: number = Math.ceil(
-     Math.log(Object.keys(this.activeGames).length + 4) / Math.log(26)) + 1;
+     Math.log(Object.keys(this.activeRooms).length + 4) / Math.log(26)) + 1;
 
    let gameCode: string = "";
-   while (gameCode == "" || this.activeGames.hasOwnProperty(gameCode)) {
+   while (gameCode == "" || this.activeRooms.hasOwnProperty(gameCode)) {
      gameCode = "";
      for (let i = 0; i < gameCodeLength; i++) {
        gameCode += ALPHABET.charAt(Math.floor(Math.random() * numChars));
@@ -62,11 +62,11 @@ export default class RoomManager {
    return gameCode;
   }
 
-  listActiveRooms(req, res): void {
-    let activeRooms: any[] = [];
+  listActiveRooms(req, res) {
+    let activeRooms: JoinInfo[] = [];
 
-    for (const [, game] of Object.entries(this.activeGames)) {
-      if (!game.settings.private) {
+    for (const [, game] of Object.entries(this.activeRooms)) {
+      if (!game.settings.isPrivate) {
         activeRooms.push(game.joinInfo());
       }
     }
@@ -76,8 +76,8 @@ export default class RoomManager {
     res.end(JSON.stringify(activeRooms));
   }
 
-  sendToGame(req, res, nextHandler): void {
-    if (this.activeGames.hasOwnProperty(req.params.gameCode)) {
+  sendToRoom(req, res, nextHandler): void {
+    if (this.activeRooms.hasOwnProperty(req.params.gameCode)) {
       return nextHandler(req, res);
     } else {
       res.redirect('/');
