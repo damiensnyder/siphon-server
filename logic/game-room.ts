@@ -1,8 +1,6 @@
-const Settings = require('./room-manager').Settings;
-// @ts-ignore
-const GameState = require('./gamestate').GameState;
-// @ts-ignore
-const Viewer = require('./viewer').Viewer;
+import Settings from "./room-manager";
+import GameState from "./gamestate";
+import Viewer from "./viewer";
 
 const TEARDOWN_TIME: number = 3600000;
 
@@ -17,8 +15,15 @@ interface OfferInfo {
   fromParty?: number
 }
 
-// @ts-ignore
-class GameRoom {
+export interface JoinInfo {
+  name: string,
+  roomCode: string,
+  players: number,
+  hasStarted: boolean,
+  hasEnded: boolean
+}
+
+export default class GameRoom {
   settings: typeof Settings;
   viewers: typeof Viewer[];
   players: typeof Viewer[];
@@ -256,7 +261,7 @@ class GameRoom {
     }
   }
 
-  // If the game hasn't started, remove the player with the given POV from the
+  // If the game hasn't hasStarted, remove the player with the given POV from the
   // game.
   removePlayer(pov: number): void {
     const name: string = this.gs.parties[pov].name;
@@ -300,15 +305,13 @@ class GameRoom {
     this.viewers.forEach((viewer) => {viewer.emitGameState(this.gs)});
   }
 
-  joinInfo() {
+  joinInfo(): JoinInfo {
     return {
       name: this.settings.name,
       roomCode: this.settings.roomCode,
       players: this.players.length,
-      started: this.gs.started,
-      ended: this.gs.ended
+      hasStarted: this.gs.hasStarted,
+      hasEnded: this.gs.hasEnded
     };
   }
 }
-
-module.exports = GameRoom;

@@ -1,19 +1,16 @@
-// @ts-ignore
-const GameRoom = require('./game-room');
+import GameRoom from "./game-room";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
-interface Settings {
+export interface Settings {
   name: string,
-  gameCode: string,
-  private: boolean,
-  nation: string
+  roomCode: string,
+  private: boolean
 }
 
-// @ts-ignore
-class RoomManager {
+export default class RoomManager {
   activeGames: {
-    [key: string]: typeof GameRoom
+    [key: string]: GameRoom
   };
   io: any;
 
@@ -25,29 +22,29 @@ class RoomManager {
   // Called by a game room when it is ready to tear down. Allows the game code
   // to be reused.
   callback(game) {
-    delete this.activeGames[game.settings.gameCode];
+    delete this.activeGames[game.settings.roomCode];
   }
 
   // Create a game and send the game code along with status 200.
   createGame(req, res) {
-    const gameCode: string = this.generateGameCode()
+    const roomCode: string = this.generateGameCode()
     const settings: Settings = req.body.settings;
-    settings.gameCode = gameCode;
+    settings.roomCode = roomCode;
 
     if (settings.name.length === 0) {
-      settings.name = "My RoomCodeParser";
+      settings.name = "Untitled Room";
     }
 
-    this.activeGames[gameCode] = new GameRoom(this.io,
+    this.activeGames[roomCode] = new GameRoom(this.io,
         settings,
         this.callback.bind(this));
     res.status = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({roomCode: gameCode}));
+    res.end(JSON.stringify({roomCode: roomCode}));
   }
   
   addTestGame(gameRoom) {
-    this.activeGames[gameRoom.settings.gameCode] = gameRoom;
+    this.activeGames[gameRoom.settings.roomCode] = gameRoom;
   }
 
   generateGameCode() {
@@ -65,18 +62,18 @@ class RoomManager {
    return gameCode;
   }
 
-  getActiveGames(req, res): void {
-    let foundGames: any[] = [];
+  listActiveRooms(req, res): void {
+    let activeRooms: any[] = [];
 
     for (const [, game] of Object.entries(this.activeGames)) {
       if (!game.settings.private) {
-        foundGames.push(game.joinInfo());
+        activeRooms.push(game.joinInfo());
       }
     }
 
     res.status = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(foundGames));
+    res.end(JSON.stringify(activeRooms));
   }
 
   sendToGame(req, res, nextHandler): void {
@@ -86,8 +83,4 @@ class RoomManager {
       res.redirect('/');
     }
   }
-}
-
-module.exports = {
-  GameManager: RoomManager
 }

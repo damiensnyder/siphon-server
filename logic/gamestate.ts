@@ -24,8 +24,7 @@ interface HiddenInfo {
   contentGenerator: typeof Generator
 }
 
-// @ts-ignore
-class GameState {
+export default class GameState {
   started: boolean;
   ended: boolean;
   priority: number;
@@ -422,7 +421,7 @@ class GameState {
   // End the game if a player suspended the constitution and won prime minister
   // in the next race. If a player suspended the constitution and did not win,
   // remove all their funds and give them a penalty to support. If the game has
-  // not ended, begin a new race.
+  // not hasEnded, begin a new race.
   checkIfGameWon(): void {
     if (this.primeMinister != null &&
         this.suspender === this.pols[this.primeMinister].party) {
@@ -603,8 +602,3 @@ class GameState {
     });
   }
 }
-
-module.exports = {
-  GameState: GameState,
-  HiddenInfo: this.HiddenInfo
-};

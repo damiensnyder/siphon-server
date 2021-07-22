@@ -11,8 +11,7 @@ interface ActionQueue {
 const NUMERIC_SUBQUEUES: string[] = ["adQueue", "smearQueue", "brubeQueue",
   "hitQueue", "voteQueue", "flipQueue"]
 
-// @ts-ignore
-class Viewer {
+export default class Viewer {
   pov: number;
   callback: any;
   socket: any;
@@ -105,8 +104,4 @@ class Viewer {
     this.socket.emit('update', gs);
     gs.unsetPov(hiddenInfo);
   }
-}
-
-module.exports = {
-  Viewer: Viewer
 }
