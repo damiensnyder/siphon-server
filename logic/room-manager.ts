@@ -1,4 +1,4 @@
-import GameRoom, {JoinInfo} from "./game-room";
+import GameRoom, {RoomInfo} from "./game-room";
 import SocketIo from "socket.io";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
@@ -6,7 +6,12 @@ const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 export interface RoomSettings {
   name: string,
   roomCode: string,
-  isPrivate: boolean
+  isPrivate: boolean,
+  gameplaySettings: GameplaySettings
+}
+
+export interface GameplaySettings {
+
 }
 
 export default class RoomManager {
@@ -64,11 +69,11 @@ export default class RoomManager {
   }
 
   listActiveRooms(req, res) {
-    let activeRooms: JoinInfo[] = [];
+    let activeRooms: RoomInfo[] = [];
 
     for (const [, game] of Object.entries(this.activeRooms)) {
       if (!game.roomSettings.isPrivate) {
-        activeRooms.push(game.joinInfo());
+        activeRooms.push(game.roomInfo());
       }
     }
 

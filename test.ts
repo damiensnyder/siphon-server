@@ -9,10 +9,10 @@ function createTestRoom(name, roomCode, gameplaySettings, numPlayers) {
   }, () => {});
 
   for (let i = 1; i <= numPlayers; i++) {
-    gameRoom.gs.addParty("Player " + i, "P" + i);
+    gameRoom.gs.addPlayer("Player " + i, "P" + i);
   }
   gameRoom.gs.commitAll();
-  gameRoom.gs.parties.forEach((player) => {
+  gameRoom.gs.players.forEach((player) => {
     player.connected = false;
   });
 
