@@ -6,10 +6,9 @@
   "author": "Damien Snyder <damien@damiensnyder.com>",
   "scripts": {
     "build": "next build",
+    "dev": "next dev",
     "test": "tsc && node test.js -p $PORT",
-    "start": "node app.js -p $PORT",
-    "build-ts": "tsc",
-    "watch-ts": "tsc -w"
+    "start": "tsc --project ./ && node app.js -p $PORT"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

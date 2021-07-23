@@ -1,17 +1,17 @@
 import Express from "express";
 import BodyParser from "body-parser";
-import Http from "http";
+import * as Http from "http";
 import SocketIo from "socket.io";
 
 import RoomManager from "./logic/room-manager";
 
-const expressApp: Express.Application = new Express();
+const expressApp: Express.Application = Express();
 const bodyParser: BodyParser = new BodyParser();
 expressApp.use(bodyParser.urlencoded({extended: true}));
 expressApp.use(bodyParser.json());
 
-const server: Http.Server = Http.createServer(expressApp);
-const io = new SocketIo(server);
+const httpServer: Http.Server = Http.createServer(expressApp);
+const io = new SocketIo(httpServer);
 
 const nextJs = require('next');
 const nextApp = nextJs({dev: process.env.NODE_ENV !== "production"});
@@ -40,7 +40,7 @@ nextApp.prepare().then(() => {
   // Start the server for socket.io
   const envPort = parseInt(process.env.PORT);
   const port = envPort >= 0 ? envPort : 3000;
-  server.listen(port, () => {
+  httpServer.listen(port, () => {
     console.log(`Listening on port ${port}`);
   })
 });
