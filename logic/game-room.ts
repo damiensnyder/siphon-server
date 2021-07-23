@@ -1,4 +1,6 @@
-import Settings from "./room-manager";
+import SocketIo, {Socket} from "socket.io";
+
+import {RoomSettings} from "./room-manager";
 import GameState from "./gamestate";
 import Viewer from "./viewer";
 
@@ -24,27 +26,29 @@ export interface JoinInfo {
 }
 
 export default class GameRoom {
-  settings: typeof Settings;
-  viewers: typeof Viewer[];
-  players: typeof Viewer[];
-  gs: typeof GameState;
+  roomSettings: RoomSettings;
+  viewers: Viewer[];
+  players: Viewer[];
+  gs: GameState;
   handlingAction: boolean;
   private actionQueue: any[];
-  private readonly gmCallback: any;
-  private io: any;
+  private readonly teardownCallback: (GameRoom) => void;
+  private readonly io: SocketIo;
   private teardownTimer: NodeJS.Timeout;
   private readonly handlers: any;
 
-  constructor(io, settings, callback) {
-    this.io = io.of('/game/' + settings.gameCode);
-    this.settings = settings;
-    this.gs = new GameState(settings);
-    this.gmCallback = callback;
+  constructor(io: SocketIo,
+              roomSettings: RoomSettings,
+              teardownCallback: (GameRoom) => void) {
+    this.io = io.of('/game/' + roomSettings.roomCode);
+    this.roomSettings = roomSettings;
+    this.gs = new GameState(roomSettings);
+    this.teardownCallback = teardownCallback;
 
     this.viewers = [];
     this.players = [];
 
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', (socket: Socket) => {
       const viewer = new Viewer(socket, this.enqueueAction);
       this.enqueueAction(viewer, 'connect', null);
     });
@@ -61,13 +65,13 @@ export default class GameRoom {
     this.actionQueue = [];
     this.handlingAction = false;
     this.enqueueAction = this.enqueueAction.bind(this);
-    this.teardownTimer = setTimeout(() => {this.gmCallback(this)},
+    this.teardownTimer = setTimeout(() => {this.teardownCallback(this)},
         TEARDOWN_TIME);
   }
 
   // Sends actions to a queue that can be handled one at a time so they don't
   // interfere with each other.
-  enqueueAction(viewer: typeof Viewer, type: string, data: any): void {
+  enqueueAction(viewer: Viewer, type: string, data: any): void {
     this.actionQueue.push({
       viewer: viewer,
       type: type,
@@ -82,12 +86,12 @@ export default class GameRoom {
 
   // Handle the first action in the queue. If there are no more actions in the
   // queue, show that it is done. Otherwise, handle the next action.
-  handleAction(): void {
+  handleAction() {
     const action = this.actionQueue[0];
     this.handlers[action.type](action.viewer, action.data);
 
     clearTimeout(this.teardownTimer);
-    this.teardownTimer = setTimeout(() => {this.gmCallback(this)},
+    this.teardownTimer = setTimeout(() => {this.teardownCallback(this)},
         TEARDOWN_TIME);
 
     this.actionQueue.splice(0, 1);
@@ -98,7 +102,7 @@ export default class GameRoom {
     }
   }
 
-  handleConnect(viewer: typeof Viewer): void {
+  handleConnect(viewer: Viewer) {
     this.viewers.push(viewer);
     viewer.socket.emit('msg', {
       sender: 'Game',
@@ -106,7 +110,7 @@ export default class GameRoom {
       isSelf: false,
       isSystem: true
     });
-    if (this.gs.started) {
+    if (this.gs.hasStarted) {
       viewer.begin();
     }
     viewer.emitGameState(this.gs);
@@ -114,7 +118,7 @@ export default class GameRoom {
 
   // Add the player to the game, unless their party name or abbreviation are
   // already taken.
-  handleJoin(viewer: typeof Viewer, partyInfo: PartyInfo): void {
+  handleJoin(viewer: Viewer, partyInfo: PartyInfo) {
     let nameAndAbbrAreUnique = true;
     this.gs.parties.forEach((party) => {
       if (party.name == partyInfo.name || party.abbr == partyInfo.abbr) {
@@ -122,7 +126,7 @@ export default class GameRoom {
       }
     });
     if (nameAndAbbrAreUnique) {
-      viewer.join(this.players.length, partyInfo.name);
+      viewer.join(this.players.length);
       this.players.push(viewer);
       this.gs.addParty(partyInfo.name, partyInfo.abbr);
 
@@ -136,38 +140,38 @@ export default class GameRoom {
     }
   }
 
-  handleReplace(viewer: typeof Viewer, target: number): void {
-    this.io.emit('newreplace', target);
-    if (this.gs.started && !this.gs.parties[target].connected) {
-      viewer.join(target, this.gs.parties[target].name);
-      this.players.splice(target, 0, viewer);
-      this.gs.parties[target].connected = true;
+  handleReplace(viewer: Viewer, replacedPov: number) {
+    this.io.emit('newreplace', replacedPov);
+    if (this.gs.hasStarted && !this.gs.parties[replacedPov].connected) {
+      viewer.join(replacedPov);
+      this.players.splice(replacedPov, 0, viewer);
+      this.gs.parties[replacedPov].connected = true;
       viewer.emitGameState(this.gs);
 
       this.broadcastSystemMsg(
         viewer.socket,
-        `Player '${this.gs.parties[target].name}' has been replaced.`
+        `Player '${this.gs.parties[replacedPov].name}' has been replaced.`
       );
     }
   }
 
-  handleOffer(viewer: typeof Viewer, offerInfo: OfferInfo): void {
+  handleOffer(viewer: Viewer, offerInfo: OfferInfo): void {
     if (this.gs.offer(viewer.pov, offerInfo)) {
       offerInfo.fromParty = viewer.pov;
       this.players[offerInfo.target].socket.emit('newoffer', offerInfo);
     }
   }
 
-  handleReady(viewer: typeof Viewer, isReady: boolean): void {
+  handleReady(viewer: Viewer, isReady: boolean): void {
     this.gs.parties[viewer.pov].ready = isReady;
     viewer.socket.broadcast.emit('newready', {
       party: viewer.pov,
       isReady: isReady
     });
     if (this.gs.allReady()) {
-      if (this.gs.ended) {
+      if (this.gs.hasEnded) {
         this.rematch();
-      } else if (!this.gs.started) {
+      } else if (!this.gs.hasStarted) {
         for (let i = 0; i < this.viewers.length; i++) {
           this.viewers[i].begin();
         }
@@ -180,7 +184,7 @@ export default class GameRoom {
     }
   }
 
-  handleMsg(viewer: typeof Viewer, msg: string): void {
+  handleMsg(viewer: Viewer, msg: string): void {
     if (typeof(msg) == 'string' &&
         msg.trim().length > 0 &&
         viewer.pov !== undefined) {
@@ -243,7 +247,7 @@ export default class GameRoom {
 
   rematch() {
     this.players.forEach((player) => {player.reset()});
-    this.gs = new GameState(this.settings);
+    this.gs = new GameState(this.roomSettings);
     this.players = [];
     this.actionQueue = [];
     this.emitGameStateToAll();
@@ -251,7 +255,7 @@ export default class GameRoom {
 
   // When a player disconnects, remove them from the list of viewers, fix the
   // viewer indices of all other viewers, and remove them from the game.
-  handleDisconnect(viewer: typeof Viewer): void {
+  handleDisconnect(viewer: Viewer): void {
     let index: number = this.viewers.indexOf(viewer);
     this.viewers.splice(index, 1);
 
@@ -266,7 +270,7 @@ export default class GameRoom {
   removePlayer(pov: number): void {
     const name: string = this.gs.parties[pov].name;
     this.players.splice(pov, 1);
-    if (!this.gs.started) {
+    if (!this.gs.hasStarted) {
       this.gs.parties.splice(pov, 1);
       for (let i = pov; i < this.players.length; i++) {
         this.players[i].pov = i;
@@ -307,8 +311,8 @@ export default class GameRoom {
 
   joinInfo(): JoinInfo {
     return {
-      name: this.settings.name,
-      roomCode: this.settings.roomCode,
+      name: this.roomSettings.name,
+      roomCode: this.roomSettings.roomCode,
       players: this.players.length,
       hasStarted: this.gs.hasStarted,
       hasEnded: this.gs.hasEnded

@@ -1,3 +1,5 @@
+import {Socket} from "socket.io";
+
 interface ActionQueue {
   adQueue?: number[];
   smearQueue?: number[];
@@ -14,7 +16,7 @@ const NUMERIC_SUBQUEUES: string[] = ["adQueue", "smearQueue", "brubeQueue",
 export default class Viewer {
   pov: number;
   callback: any;
-  socket: any;
+  socket: Socket;
   actionQueue: ActionQueue;
   
   constructor(socket: any, callback: any) {

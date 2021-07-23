@@ -1,4 +1,5 @@
 import GameRoom, {JoinInfo} from "./game-room";
+import SocketIo from "socket.io";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
@@ -12,17 +13,17 @@ export default class RoomManager {
   activeRooms: {
     [key: string]: GameRoom
   };
-  socket: any;
+  io: SocketIo;
 
-  constructor(socket) {
-    this.socket = socket;
+  constructor(io: SocketIo) {
+    this.io = io;
     this.activeRooms = {};
   }
 
   // Called by a game room when it is ready to tear down. Allows the room code
   // to be reused.
-  callback(game) {
-    delete this.activeRooms[game.settings.roomCode];
+  teardownCallback(gameRoom: GameRoom) {
+    delete this.activeRooms[gameRoom.roomSettings.roomCode];
   }
 
   // Create a game room and send the room code along with status 200.
@@ -35,16 +36,16 @@ export default class RoomManager {
       roomSettings.name = "Untitled Room";
     }
 
-    this.activeRooms[roomCode] = new GameRoom(this.socket,
+    this.activeRooms[roomCode] = new GameRoom(this.io,
         roomSettings,
-        this.callback.bind(this));
+        this.teardownCallback.bind(this));
     res.status = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({roomCode: roomCode}));
   }
   
   addTestRoom(gameRoom: GameRoom) {
-    this.activeRooms[gameRoom.settings.roomCode] = gameRoom;
+    this.activeRooms[gameRoom.roomSettings.roomCode] = gameRoom;
   }
 
   generateRoomCode() {
@@ -52,21 +53,21 @@ export default class RoomManager {
    const gameCodeLength: number = Math.ceil(
      Math.log(Object.keys(this.activeRooms).length + 4) / Math.log(26)) + 1;
 
-   let gameCode: string = "";
-   while (gameCode == "" || this.activeRooms.hasOwnProperty(gameCode)) {
-     gameCode = "";
+   let roomCode: string = "";
+   while (roomCode == "" || this.activeRooms.hasOwnProperty(roomCode)) {
+     roomCode = "";
      for (let i = 0; i < gameCodeLength; i++) {
-       gameCode += ALPHABET.charAt(Math.floor(Math.random() * numChars));
+       roomCode += ALPHABET.charAt(Math.floor(Math.random() * numChars));
      }
    }
-   return gameCode;
+   return roomCode;
   }
 
   listActiveRooms(req, res) {
     let activeRooms: JoinInfo[] = [];
 
     for (const [, game] of Object.entries(this.activeRooms)) {
-      if (!game.settings.isPrivate) {
+      if (!game.roomSettings.isPrivate) {
         activeRooms.push(game.joinInfo());
       }
     }

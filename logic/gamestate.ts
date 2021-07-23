@@ -25,8 +25,8 @@ interface HiddenInfo {
 }
 
 export default class GameState {
-  started: boolean;
-  ended: boolean;
+  hasStarted: boolean;
+  hasEnded: boolean;
   priority: number;
   pov: number;
   turn: number;
@@ -45,8 +45,8 @@ export default class GameState {
 
   constructor(settings) {
     this.settings = settings;
-    this.started = false;
-    this.ended = false;
+    this.hasStarted = false;
+    this.hasEnded = false;
     this.priority = -1;
     this.pov = -1;
     this.turn = -1;
@@ -96,8 +96,8 @@ export default class GameState {
       party.ready = false;
     });
 
-    if (!this.started) {
-      this.started = true;
+    if (!this.hasStarted) {
+      this.hasStarted = true;
       this.beginRace();
     } else if (this.stage === 1) {
       this.advanceRaceRound();
@@ -425,14 +425,14 @@ export default class GameState {
   checkIfGameWon(): void {
     if (this.primeMinister != null &&
         this.suspender === this.pols[this.primeMinister].party) {
-      this.ended = true;
+      this.hasEnded = true;
     } else if (this.suspender !== null) {
       this.parties[this.suspender].baseSupport = -1;   // becomes 0 before race
       this.parties[this.suspender].funds = 0;
     }
 
     // If there was no winner, advance to the next prov and begin nomination.
-    if (!this.ended) {
+    if (!this.hasEnded) {
       this.beginRace();
     }
   }
