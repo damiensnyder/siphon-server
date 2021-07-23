@@ -1,32 +1,36 @@
 import Express from "express";
 import BodyParser from "body-parser";
+import Http from "http";
+import Io from "socket.io";
 
-const expressApp: Express = new Express();
+import RoomManager from "./logic/room-manager";
+
+const expressApp: Express.Application = new Express();
 const bodyParser: BodyParser = new BodyParser();
 expressApp.use(bodyParser.urlencoded({extended: true}));
 expressApp.use(bodyParser.json());
 
-const server = require('http').Server(expressApp);
-const io = require('socket.io')(server);
+const server: Http.Server = Http.createServer(expressApp);
+const io = new Io(server);
 
 const nextJs = require('next');
-const nextApp = nextJs({dev: process.env.NODE_ENV != 'production'});
+const nextApp = nextJs({dev: process.env.NODE_ENV !== "production"});
 const nextHandler = nextApp.getRequestHandler();
 
-const GameManager = new (require('./logic/room-manager').GameManager)(io);
+export const roomManager: RoomManager = new RoomManager(io);
 
 nextApp.prepare().then(() => {
   expressApp.post('/create', (req, res) => {
-    GameManager.createGame(req, res);
+    RoomManager.createRoom(req, res);
   });
 
   expressApp.get('/api/activeRooms', (req, res) => {
-    GameManager.getActiveGames(req, res);
+    RoomManager.listActiveRooms(req, res);
   });
 
-  // Send people who join the game to the game room
+  // Send people to the game room when they join
   expressApp.get('/game/:roomCode', (req, res) => {
-    GameManager.sendToGame(req, res, nextHandler);
+    RoomManager.sendToRoom(req, res, nextHandler);
   });
 
   expressApp.get('*', (req, res) => {
@@ -38,10 +42,6 @@ nextApp.prepare().then(() => {
   const port = envPort >= 0 ? envPort : 3000;
   server.listen(port, (err) => {
     if (err) throw err;
-    console.log("Listening on port " + port);
+    console.log(`Listening on port ${port}`);
   })
 });
-
-module.exports = {
-  gameManager: GameManager
-};
