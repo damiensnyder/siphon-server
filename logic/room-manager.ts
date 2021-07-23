@@ -1,5 +1,7 @@
 import GameRoom, {RoomInfo} from "./game-room";
 import SocketIo from "socket.io";
+import {NextHandler} from "../app";
+import {Express} from "express";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
@@ -32,7 +34,7 @@ export default class RoomManager {
   }
 
   // Create a game room and send the room code along with status 200.
-  createRoom(req, res) {
+  createRoom(req: Express.Request, res: Express.Response) {
     const roomCode: string = this.generateRoomCode()
     const roomSettings: RoomSettings = req.body.settings;
     roomSettings.roomCode = roomCode;
@@ -59,16 +61,18 @@ export default class RoomManager {
      Math.log(Object.keys(this.activeRooms).length + 4) / Math.log(26)) + 1;
 
    let roomCode: string = "";
-   while (roomCode == "" || this.activeRooms.hasOwnProperty(roomCode)) {
-     roomCode = "";
+   while (roomCode == "") {
      for (let i = 0; i < gameCodeLength; i++) {
        roomCode += ALPHABET.charAt(Math.floor(Math.random() * numChars));
+     }
+     if (this.activeRooms.hasOwnProperty(roomCode)) {
+       roomCode = "";
      }
    }
    return roomCode;
   }
 
-  listActiveRooms(req, res) {
+  listActiveRooms(req: Express.Request, res: Express.Response) {
     let activeRooms: RoomInfo[] = [];
 
     for (const [, game] of Object.entries(this.activeRooms)) {
@@ -82,8 +86,10 @@ export default class RoomManager {
     res.end(JSON.stringify(activeRooms));
   }
 
-  sendToRoom(req, res, nextHandler): void {
-    if (this.activeRooms.hasOwnProperty(req.params.gameCode)) {
+  sendToRoom(req: Express.Request,
+             res: Express.Response,
+             nextHandler: NextHandler) {
+    if (this.activeRooms.hasOwnProperty(req.params.roomCode)) {
       return nextHandler(req, res);
     } else {
       res.redirect('/');
