@@ -6,8 +6,7 @@
   "author": "Damien Snyder <damien@damiensnyder.com>",
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
-    "test": "tsc && node test.js -p $PORT",
+    "test": "tsc --project ./ && node test.js -p $PORT",
     "start": "tsc --project ./ && node app.js -p $PORT"
   },
   "dependencies": {
