@@ -1,19 +1,25 @@
 import {roomManager} from "./app";
 import GameRoom from "./logic/game-room";
+import {GameplaySettings} from "./logic/room-manager";
 
-function createTestRoom(name, roomCode, gameplaySettings, numPlayers) {
+function createTestRoom(roomName: string,
+                        roomCode: string,
+                        gameplaySettings: GameplaySettings,
+                        numPlayers: number) {
   const gameRoom: GameRoom = new GameRoom(roomManager.io, {
-    name: name,
+    name: roomName,
     roomCode: roomCode,
-    isPrivate: false
+    isPrivate: false,
+    gameplaySettings: {}
   }, () => {});
 
   for (let i = 1; i <= numPlayers; i++) {
-    gameRoom.gs.addPlayer("Player " + i, "P" + i);
+    gameRoom.gs.addPlayer({
+      name: `Player ${i}`
+    });
   }
-  gameRoom.gs.commitAll();
   gameRoom.gs.players.forEach((player) => {
-    player.connected = false;
+    player.isConnected = false;
   });
 
   roomManager.addTestRoom(gameRoom);

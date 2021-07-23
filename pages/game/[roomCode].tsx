@@ -10,7 +10,7 @@ export default function RoomCodeParser(): React.ReactElement {
   const router = useRouter();
   const {gameCode: roomCode} = router.query;
   if (typeof(roomCode) !== "string") {
-    return null;
+    return <></>;
   }
   return <GameView roomCode={roomCode} />;
 }

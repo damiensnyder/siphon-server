@@ -1,10 +1,10 @@
 import {Socket} from "socket.io";
 import {Viewpoint} from "./gamestate";
 
-type Callback = (Viewer, string, unknown?) => void;
+type Callback = (viewer: Viewer, actionType: string, data?: unknown) => void;
 
 export default class Viewer {
-  pov: number;
+  pov?: number;
   callback: Callback;
   socket: Socket;
   
@@ -12,18 +12,18 @@ export default class Viewer {
     this.socket = socket;
     this.callback = callback;
 
-    this.socket.on('join',
-        (playerJoinInfo) => this.callback(this, 'join', playerJoinInfo));
-    this.socket.on('disconnect',
-        () => this.callback(this, 'disconnect'));
+    this.socket.on('join', (joinInfo: unknown) =>
+        this.callback(this, 'join', joinInfo));
+    this.socket.on('disconnect', () =>
+        this.callback(this, 'disconnect'));
   }
 
   joinGame(pov: number) {
     this.pov = pov;
-    this.socket.on('ready',
-        (readyInfo) => this.callback(this, 'ready', readyInfo));
-    this.socket.on('msg',
-        (messageInfo) => this.callback(this, 'msg', messageInfo));
+    this.socket.on('ready', (readyInfo: unknown) =>
+        this.callback(this, 'ready', readyInfo));
+    this.socket.on('msg', (messageInfo: unknown) =>
+        this.callback(this, 'msg', messageInfo));
 
     this.socket.removeAllListeners('join');
     this.socket.removeAllListeners('replace');
@@ -31,11 +31,11 @@ export default class Viewer {
 
   beginGame() {
     if (this.pov === undefined) {
-      this.socket.on('replace',
-          (targetPov) => this.callback(this, 'replace', targetPov));
+      this.socket.on('replace', (targetPov: unknown) =>
+          this.callback(this, 'replace', targetPov));
     } else {
-      this.socket.on('gameAction',
-          (actionInfo) => this.callback(this, 'gameAction', actionInfo));
+      this.socket.on('gameAction', (actionInfo: unknown) =>
+          this.callback(this, 'gameAction', actionInfo));
     }
   }
 
@@ -46,11 +46,11 @@ export default class Viewer {
 
   resetGame(): void {
     if (this.pov !== undefined) {
-      this.socket.on('ready',
-          (readyInfo) => this.callback(this, 'ready', readyInfo));
+      this.socket.on('ready', (readyInfo: unknown) =>
+          this.callback(this, 'ready', readyInfo));
     } else {
-      this.socket.on('join',
-          (partyInfo) => this.callback(this, 'join', partyInfo));
+      this.socket.on('join', (joinInfo: unknown) =>
+          this.callback(this, 'join', joinInfo));
     }
   }
 

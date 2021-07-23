@@ -1,5 +1,5 @@
 import {GameplaySettings} from "./room-manager";
-import {PlayerJoinInfo} from "./game-room";
+import {JoinInfo} from "./game-room";
 
 export enum StageOfGame {
   pregame,
@@ -29,15 +29,15 @@ export default class GameState {
     this.players = [];
   }
 
-  isValidPlayerJoinInfo(playerJoinInfo: unknown): boolean {
+  isValidJoinInfo(joinInfo: unknown): boolean {
     return true;
   }
 
-  addPlayer(playerJoinInfo: PlayerJoinInfo): void {
+  addPlayer(playerJoinInfo: JoinInfo) {
     this.players.push({
       name: playerJoinInfo.name,
-      isReady: false,
-      isConnected: true,
+      isConnected: false,
+      isReady: false
     });
   }
 
@@ -66,7 +66,7 @@ export default class GameState {
 
   }
 
-  generateViewpoint(pov: number): Viewpoint {
+  generateViewpoint(pov?: number): Viewpoint {
     return {};
   }
 }

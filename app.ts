@@ -1,5 +1,4 @@
 import Express from "express";
-import BodyParser from "body-parser";
 import * as Http from "http";
 import SocketIo from "socket.io";
 import Next from "next";
@@ -9,9 +8,8 @@ import {UrlWithParsedQuery} from "url";
 import RoomManager from "./logic/room-manager";
 
 const expressApp: Express.Application = Express();
-const bodyParser: BodyParser = new BodyParser();
-expressApp.use(bodyParser.urlencoded({extended: true}));
-expressApp.use(bodyParser.json());
+expressApp.use(Express.urlencoded({extended: true}));
+expressApp.use(Express.json());
 
 const httpServer: Http.Server = Http.createServer(expressApp);
 const io: SocketIo = new SocketIo(httpServer);

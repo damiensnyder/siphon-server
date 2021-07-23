@@ -6,9 +6,9 @@ class Error404 extends React.Component {
   state: {
     secondsUntilRedirect: number
   };
-  redirectTimer: NodeJS.Timeout;
+  redirectTimer?: NodeJS.Timeout;
 
-  constructor(props) {
+  constructor(props: {}) {
     super(props);
     this.state = {
       secondsUntilRedirect: 5
@@ -23,7 +23,9 @@ class Error404 extends React.Component {
   }
 
   componentWillUnmount(): void {
-    clearInterval(this.redirectTimer);
+    if (this.redirectTimer) {
+      clearInterval(this.redirectTimer);
+    }
   }
 
   tickRedirect(): void {
@@ -31,7 +33,9 @@ class Error404 extends React.Component {
       secondsUntilRedirect: this.state.secondsUntilRedirect - 1
     });
     if (this.state.secondsUntilRedirect === 0) {
-      clearInterval(this.redirectTimer);
+      if (this.redirectTimer) {
+        clearInterval(this.redirectTimer);
+      }
       Router.push('/');
     }
   }

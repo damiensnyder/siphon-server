@@ -20,9 +20,11 @@ interface ActionInfo {
   data?: unknown
 }
 
-export interface PlayerJoinInfo {
+export interface JoinInfo {
   name: string
 }
+
+type TeardownCallback = (gameRoom: GameRoom) => void
 
 export default class GameRoom {
   roomSettings: RoomSettings;
@@ -31,16 +33,16 @@ export default class GameRoom {
   gs: GameState;
   handlingAction: boolean;
   private actionQueue: ActionInfo[];
-  private readonly teardownCallback: (GameRoom) => void;
+  private readonly teardownCallback: TeardownCallback;
   private readonly io: SocketIo;
   private teardownTimer: NodeJS.Timeout;
   private readonly handlers: {
-    [key: string]: (Viewer, unknown) => void
+    [key: string]: (viewer: Viewer, data: unknown) => void
   };
 
   constructor(io: SocketIo,
               roomSettings: RoomSettings,
-              teardownCallback: (GameRoom) => void) {
+              teardownCallback: TeardownCallback) {
     this.io = io.of('/game/' + roomSettings.roomCode);
     this.roomSettings = roomSettings;
     this.gs = new GameState(roomSettings);
@@ -119,15 +121,15 @@ export default class GameRoom {
   }
 
   // Add the player to the game, unless their join info is invalid.
-  handleJoin(viewer: Viewer, playerJoinInfo: PlayerJoinInfo) {
-    if (this.gs.isValidPlayerJoinInfo(playerJoinInfo)) {
+  handleJoin(viewer: Viewer, joinInfo: JoinInfo) {
+    if (this.gs.isValidJoinInfo(joinInfo)) {
       viewer.joinGame(this.players.length);
       this.players.push(viewer);
-      this.gs.addPlayer(playerJoinInfo);
+      this.gs.addPlayer(joinInfo);
 
       this.broadcastSystemMsg(
         viewer.socket,
-        `Player '${playerJoinInfo.name}' has joined the game.`
+        `Player '${joinInfo.name}' has joined the game.`
       );
       this.emitGameStateToAll();
     } else {
