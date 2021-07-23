@@ -1,10 +1,13 @@
-import React from "react";
+import * as React from "react";
 
 import ChatMessage from "./chat-message";
+// @ts-ignore
 import general from "../../general.module.css";
+// @ts-ignore
 import styles from "./chat.module.css";
+import {ChangeEvent} from "react";
 
-class Chat extends React.Component {
+export default class Chat extends React.Component {
   props: any;
   state: {currentMsg: string};
   textInput: any;
@@ -39,18 +42,18 @@ class Chat extends React.Component {
     return msgsJsx;
   }
 
-  handleTyping(event): void {
+  handleTyping(event: ChangeEvent<HTMLInputElement>) {
     this.setState({currentMsg: event.target.value});
   }
 
-  checkIfEnterPressed(key): void {
+  checkIfEnterPressed(key: React.KeyboardEvent<HTMLInputElement>) {
     if (key.keyCode == 13) {
       this.sendMsg();
       this.textInput.current.focus();
     }
   }
 
-  sendMsg(): void {
+  sendMsg() {
     const newMsg: string = this.state.currentMsg.trim();
     if (newMsg.length > 0) {
       this.props.callback('msg', newMsg);
@@ -79,7 +82,7 @@ class Chat extends React.Component {
     this.scrollToBottom();
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <div id={styles.chatContainer}>
         <div id={styles.messagesOuter}>
@@ -107,5 +110,3 @@ class Chat extends React.Component {
     );
   }
 }
-
-export default Chat;

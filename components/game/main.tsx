@@ -1,10 +1,9 @@
-import React from "react";
+import * as React from "react";
 import io from "socket.io-client";
 
-import PartiesView from "./parties/parties-view";
-import ProvsView from "./provs/provs-view";
-import PregameView from "./pregame/pregame-view";
+import PlayersView from "./players/players-view";
 import Chat from "./chat/chat";
+// @ts-ignore
 import styles from "./main.module.css";
 import GamestateManager from "./gamestate-manager";
 
@@ -15,7 +14,7 @@ interface Message {
   isSystem: boolean
 }
 
-class GameView extends React.Component {
+export default class GameView extends React.Component {
   socket?: any;
   roomCode: string;
   gamestateManager: GamestateManager;
@@ -60,7 +59,7 @@ class GameView extends React.Component {
 
   // Creates the socket connection to the server and handlers for when messages
   // are received from the server.
-  initializeSocket(): void {
+  initializeSocket() {
     this.socket = io.connect('/game/' + this.props.roomCode);
 
     this.socket.on('connection', () => {
@@ -89,23 +88,18 @@ class GameView extends React.Component {
       document.title = gs.settings.name;
     });
 
-    this.socket.on('newoffer', (offerInfo) => {
-      this.gamestateManager.updateAfter('newoffer', offerInfo);
-      this.setState({gs: this.gamestateManager.gs});
-    });
-
     this.socket.on('newready', (readyInfo) => {
       this.gamestateManager.updateAfter('newready', readyInfo);
       this.setState({gs: this.gamestateManager.gs});
     });
 
-    this.socket.on('newreplace', (party) => {
-      this.gamestateManager.updateAfter('newreplace', party);
+    this.socket.on('newreplace', (player) => {
+      this.gamestateManager.updateAfter('newreplace', player);
       this.setState({gs: this.gamestateManager.gs});
     });
 
-    this.socket.on('newdisconnect', (party) => {
-      this.gamestateManager.updateAfter('newdisconnect', party);
+    this.socket.on('newdisconnect', (player) => {
+      this.gamestateManager.updateAfter('newdisconnect', player);
       this.setState({gs: this.gamestateManager.gs});
     });
   }
@@ -113,8 +107,8 @@ class GameView extends React.Component {
   // Passed to child components. Assigns the callback to the proper handler
   // function and passes the data along. Sends the type and data via the socket
   // to the server.
-  callback(type, data) {
-    if (type == "msg") {
+  callback(type: string, data: any) {
+    if (type === "msg") {
       this.addMsg({
         sender: "You",
         text: data,
@@ -128,7 +122,7 @@ class GameView extends React.Component {
       });
     }
 
-    const TYPES_TO_EMIT: string[] = ["join", "replace", "msg", "offer"];
+    const TYPES_TO_EMIT: string[] = ["join", "replace", "msg", "gameAction"];
 
     if (TYPES_TO_EMIT.includes(type)) {
       this.socket.emit(type, data);
@@ -138,7 +132,7 @@ class GameView extends React.Component {
   }
 
   // Adds a message to the Chat component.
-  addMsg(msg: Message): void {
+  addMsg(msg: Message) {
     const messages: Message[] = this.state.messages;
     messages.push(msg);
     this.setState({
@@ -146,36 +140,23 @@ class GameView extends React.Component {
     });
   }
 
-  rightPanelJsx(): React.ReactNode | void {
-    if (this.state.gs.started) {
-      return (
-        <ProvsView gs={this.state.gs}
-            callback={this.callback} />
-      );
-    }
-    return (
-      <PregameView joined={this.state.gs.pov >= 0}
-          gs={this.state.gs}
-          callback={this.callback}
-          roomCode={this.props.roomCode} />
-    );
+  gameBoardJsx(): JSX.Element {
+    return null;
   }
 
-  render(): React.ReactNode {
+  render(): JSX.Element {
     return (
       <div id={styles.root}>
         <div id={styles.sidebar}>
-          <PartiesView gs={this.state.gs}
-              callback={this.callback} />
+          <PlayersView gs={this.state.gs}
+                       callback={this.callback} />
           <Chat messages={this.state.messages}
               callback={this.callback} />
         </div>
         <div id={styles.gamePane}>
-          {this.rightPanelJsx.bind(this)()}
+          {this.gameBoardJsx.bind(this)()}
         </div>
       </div>
     );
   }
 }
-
-export default GameView;

@@ -1,22 +1,23 @@
-import React from "react";
+import * as React from "react";
 
-import Party from "./party";
-import styles from "./parties.module.css";
+import Player from "./player";
+// @ts-ignore
+import styles from "./players.module.css";
 
 function partiesToJsx(gs, callback) {
   const partiesJsx = [];
   for (let i = 0; i < gs.parties.length; i++) {
     partiesJsx.push(
-      <Party key={i}
-          index={i}
-          gs={gs}
-          callback={callback} />
+      <Player key={i}
+              index={i}
+              gs={gs}
+              callback={callback} />
     );
   }
   return partiesJsx;
 }
 
-function PartiesView(props) {
+function PlayersView(props) {
   return (
     <div id={styles.partiesWrapper}>
       <h2 id={styles.gameName}>
@@ -27,4 +28,4 @@ function PartiesView(props) {
   );
 }
 
-export default PartiesView;
+export default PlayersView;

@@ -1,8 +1,9 @@
-import React from "react";
+import * as React from "react";
 
-import Offer from "./offer";
+// @ts-ignore
 import general from "../../general.module.css";
-import styles from "./parties.module.css";
+// @ts-ignore
+import styles from "./players.module.css";
 
 interface PartyProps {
   gs: any,
@@ -10,7 +11,7 @@ interface PartyProps {
   callback: any
 }
 
-function ownFundsJsx(amount: number) {
+function ownFundsJsx(amount: number): JSX.Element {
   return (
     <span className={styles.funds}>
       Funds: {"$" + (amount * 100000).toLocaleString()}
@@ -18,7 +19,7 @@ function ownFundsJsx(amount: number) {
   );
 }
 
-function offersJsx(offers) {
+function offersJsx(offers): JSX.Element {
   let totalAmount: number = 0;
   offers.forEach((offer) => {totalAmount += offer.amount});
   return (
@@ -40,18 +41,10 @@ function replaceBtnJsx(props: PartyProps) {
 }
 
 function paymentJsx(props: PartyProps) {
-  if (props.gs.pov != props.index && props.gs.pov >= 0) {
-    return (
-      <Offer index={props.index}
-          gs={props.gs}
-          ownParty={props.gs.parties[props.gs.pov]}
-          callback={props.callback} />
-    );
-  }
   return null;
 }
 
-function Party(props: PartyProps) {
+function Player(props: PartyProps) {
   const self = props.gs.parties[props.index];
   let nameStyle: string = styles.partyInfo;
   if (props.gs.pov == props.index) {
@@ -95,4 +88,4 @@ function Party(props: PartyProps) {
   );
 }
 
-export default Party;
+export default Player;
