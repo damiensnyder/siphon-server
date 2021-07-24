@@ -1,8 +1,8 @@
-import React from 'react';
-import Router from 'next/router';
+import React from "react";
+import Router from "next/router";
 
-import general from '../general.module.css';
-import styles from './join-menu.module.css';
+import general from "../general.module.css";
+import styles from "./join-menu.module.css";
 import {RoomInfo} from "../../logic/game-room";
 import {GameStatus} from "../../logic/gamestate";
 
