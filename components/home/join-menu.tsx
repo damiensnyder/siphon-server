@@ -2,10 +2,11 @@ import React from "react";
 import Router from "next/router";
 
 import TextInput from "../text-input";
-import RoomItem from "./game-item";
+import RoomItem from "./room-item";
 import general from "../general.module.css";
 import styles from "./main.module.css";
 import joinStyles from "./join-menu.module.css";
+import {RoomInfo} from "../../logic/game-room";
 
 enum FetchStatus {
   pending,
@@ -16,29 +17,20 @@ enum FetchStatus {
 interface JoinMenuState {
   roomCode: string,
   fetchStatus: FetchStatus,
-  rooms: {
-    roomCode: string,
-    nation: string,
-    name: string,
-    private: false
-  }[];
+  numFetches: number;
+  rooms: RoomInfo[]
 }
 
 class JoinMenu extends React.Component<void, JoinMenuState> {
-  roomCodeInput: React.RefObject<any>;
-  numFetches: number;
-
   constructor(props) {
     super(props);
 
     this.state = {
       roomCode: "",
       fetchStatus: FetchStatus.pending,
+      numFetches: 0,
       rooms: []
     }
-
-    this.roomCodeInput = React.createRef();
-    this.numFetches = 0;
   }
 
   componentDidMount() {
@@ -69,8 +61,10 @@ class JoinMenu extends React.Component<void, JoinMenuState> {
     }
 
     // Fetch again and double delay until next fetch.
-    setTimeout(this.fetchGames.bind(this), 15000 * 2 ** this.numFetches);
-    this.numFetches++;
+    setTimeout(this.fetchGames.bind(this), 15000 * 2 ** this.state.numFetches);
+    this.setState({
+      numFetches: this.state.numFetches + 1
+    });
   }
 
   gamesToJsx(): JSX.Element | JSX.Element[] {
@@ -84,9 +78,9 @@ class JoinMenu extends React.Component<void, JoinMenuState> {
       return <div>No games found.</div>;
     }
 
-    return this.state.rooms.map((room) => {
-      return <RoomItem key={room.roomCode}
-                       info={room} />;
+    return this.state.rooms.map((roomInfo) => {
+      return <RoomItem key={roomInfo.roomCode}
+                       {...roomInfo} />;
     });
   }
 
