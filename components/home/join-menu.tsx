@@ -21,7 +21,7 @@ interface JoinMenuState {
   rooms: RoomInfo[]
 }
 
-class JoinMenu extends React.Component<void, JoinMenuState> {
+class JoinMenu extends React.Component<{}, JoinMenuState> {
   constructor(props) {
     super(props);
 

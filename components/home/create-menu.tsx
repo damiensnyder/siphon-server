@@ -11,7 +11,7 @@ interface CreateMenuState {
   isPrivate: boolean
 }
 
-class CreateMenu extends React.Component<void, CreateMenuState> {
+class CreateMenu extends React.Component<{}, CreateMenuState> {
   constructor(props) {
     super(props);
 
