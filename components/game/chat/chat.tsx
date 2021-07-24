@@ -1,15 +1,20 @@
 import * as React from "react";
 
+import {Message} from "../main";
 import ChatMessage from "./chat-message";
-// @ts-ignore
 import general from "../../general.module.css";
-// @ts-ignore
 import styles from "./chat.module.css";
-import {ChangeEvent} from "react";
 
-export default class Chat extends React.Component {
-  props: any;
-  state: {currentMsg: string};
+interface ChatProps {
+  messages: Message[],
+  chatCallback: (msg: string) => void
+}
+
+interface ChatState {
+  currentMsg: string
+}
+
+export default class Chat extends React.Component<ChatProps, ChatState> {
   textInput: any;
   messagesInner: any;
   bottomMessage: any;
@@ -32,36 +37,32 @@ export default class Chat extends React.Component {
     this.sendMsg = this.sendMsg.bind(this);
   }
 
-  msgsToJsx(): any {
-    let msgsJsx: any[] = [];
-    this.props.messages.forEach((msg, msgIndex) => {
-      msgsJsx.push(
-        <ChatMessage msg={msg} key={msgIndex} />
-      );
+  msgsJsx(): JSX.Element[] {
+    return this.props.messages.map((msg, i) => {
+      return <ChatMessage msg={msg} key={i} />;
     });
-    return msgsJsx;
   }
 
-  handleTyping(event: ChangeEvent<HTMLInputElement>) {
+  handleTyping(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({currentMsg: event.target.value});
   }
 
   checkIfEnterPressed(key: React.KeyboardEvent<HTMLInputElement>) {
-    if (key.keyCode == 13) {
+    if (key.code === "Enter") {
       this.sendMsg();
       this.textInput.current.focus();
     }
   }
 
   sendMsg() {
-    const newMsg: string = this.state.currentMsg.trim();
+    const newMsg = this.state.currentMsg.trim();
     if (newMsg.length > 0) {
-      this.props.callback('msg', newMsg);
+      this.props.chatCallback(newMsg);
 
       // Update the message box and scroll to the bottom of the chat log
-      this.setState(() => ({
+      this.setState({
         currentMsg: ""
-      }));
+      });
       this.messageJustSent = true;
     }
   }
@@ -88,7 +89,7 @@ export default class Chat extends React.Component {
         <div id={styles.messagesOuter}>
           <div id={styles.messagesInner}
                ref={this.messagesInner}>
-            {this.msgsToJsx()}
+            {this.msgsJsx()}
             <div id={styles.bottomMessage}
                  ref={this.bottomMessage} />
           </div>
@@ -101,8 +102,8 @@ export default class Chat extends React.Component {
                  onKeyDown={this.checkIfEnterPressed}
                  ref={this.textInput} />
           <button className={general.actionBtn}
-              id={styles.sendBtn}
-              onClick={this.sendMsg}>
+                  id={styles.sendBtn}
+                  onClick={this.sendMsg}>
             Send
           </button>
         </div>
