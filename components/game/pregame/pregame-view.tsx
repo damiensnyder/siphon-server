@@ -6,14 +6,10 @@ import general from "../../general.module.css";
 import styles from "./pregame.module.css";
 import HelperBar from "../helper-bar/helper-bar";
 import {JoinInfo} from "../../../logic/game-room";
+import {PartialGameState} from "../../../logic/gamestate";
 
-interface PregameViewProps {
-  joinCallback: (joinInfo: JoinInfo) => void,
-  isConnected: boolean,
-  joined: boolean,
-  roomSettings?: {
-    roomCode: string
-  }
+interface PregameViewProps extends PartialGameState {
+  joinCallback: (joinInfo: JoinInfo) => void
 }
 
 function PregameView(props: PregameViewProps) {
@@ -25,10 +21,8 @@ function PregameView(props: PregameViewProps) {
           <JoinPanel joinCallback={props.joinCallback}
                      roomCode={props.roomSettings.roomCode} /> :
           <InviteLink roomCode={props.roomSettings.roomCode} />}
-      {/*<HelperBar {...props}*/}
-      {/*           callback={props.joinCallback}*/}
-      {/*           activeTab={0}*/}
-      {/*           tabCallback={() => {}} />*/}
+      <HelperBar {...props}
+                 readyCallback={props.joinCallback} />
     </div>
   );
 }

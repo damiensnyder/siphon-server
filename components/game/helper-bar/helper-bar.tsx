@@ -5,8 +5,7 @@ import styles from "./helper-bar.module.css";
 import {GameStatus, PartialGameState} from "../../../logic/gamestate";
 
 interface HelperBarProps extends PartialGameState {
-  readyCallback: (string) => void,
-  tabCallback: (number) => void
+  readyCallback: (string) => void
 }
 
 interface HelperBarState {
@@ -87,10 +86,10 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
       return null;
     } else if (this.props.gameStatus === GameStatus.pregame) {
       return (
-          <button className={priorityStyle}
-                  onClick={this.handleActionButtonPressed}>
-            {this.buttonLabel()}
-          </button>
+        <button className={priorityStyle}
+                onClick={this.handleActionButtonPressed}>
+          {this.buttonLabel()}
+        </button>
       );
     }
 
