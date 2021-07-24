@@ -104,7 +104,7 @@ class JoinMenu extends React.Component<void, JoinMenuState> {
         <div className={general.horizWrapper}>
           <TextInput label={"Game code:"}
                      maxLength={20}
-                     text={this.state.roomCode}
+                     value={this.state.roomCode}
                      textCallback={this.roomCodeCallback.bind(this)}
                      submitCallback={this.submitCallback.bind(this)} />
           <div className={general.spacer}>

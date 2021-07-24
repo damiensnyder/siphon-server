@@ -66,7 +66,7 @@ class CreateMenu extends React.Component<void, CreateMenuState> {
         <h2>Create Game</h2>
         <TextInput label={'Room name:'}
             maxLength={40}
-            text={this.state.roomName}
+            value={this.state.roomName}
             placeholder={'My Game'}
             textCallback={this.nameCallback.bind(this)}
             submitCallback={this.createGame.bind(this)} />

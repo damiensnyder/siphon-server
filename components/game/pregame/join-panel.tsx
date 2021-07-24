@@ -63,12 +63,12 @@ class JoinPanel extends React.Component {
         <div className={general.menu}>
           <TextInput label={"Party name:"}
                      maxLength={40}
-                     text={this.state.partyName}
+                     value={this.state.partyName}
                      textCallback={this.updatePartyName.bind(this)}
                      submitCallback={this.joinGame.bind(this)} />
           <TextInput label={"Abbreviation:"}
                      maxLength={4}
-                     text={this.state.abbr}
+                     value={this.state.abbr}
                      placeholder={this.state.abbrPlaceholder}
                      textCallback={this.updateAbbr.bind(this)}
                      submitCallback={this.joinGame.bind(this)} />
