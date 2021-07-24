@@ -36,7 +36,7 @@ export default class RoomManager {
   // Create a game room and send the room code along with status 200.
   createRoom(req: Express.Request, res: Express.Response) {
     const roomCode: string = this.generateRoomCode()
-    const roomSettings: RoomSettings = req.body.settings;
+    const roomSettings: RoomSettings = req.body.roomSettings;
     roomSettings.roomCode = roomCode;
 
     if (roomSettings.roomName.length === 0) {

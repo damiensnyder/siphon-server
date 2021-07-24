@@ -3,7 +3,6 @@ import SocketIo, {Socket} from "socket.io";
 import {GameplaySettings, RoomSettings} from "./room-manager";
 import GameState, {GameStatus} from "./gamestate";
 import Viewer from "./viewer";
-import {MessageSender} from "../components/game/main";
 
 const TEARDOWN_TIME: number = 3600000;
 
@@ -23,6 +22,18 @@ interface ActionInfo {
 
 export interface JoinInfo {
   name: string
+}
+
+export interface Message {
+  sender: string,
+  text: string,
+  senderType: MessageSender
+}
+
+export enum MessageSender {
+  self,
+  system,
+  otherPlayer
 }
 
 type TeardownCallback = (gameRoom: GameRoom) => void

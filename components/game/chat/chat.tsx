@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {Message} from "../main";
+import {Message} from "../../../logic/game-room";
 import ChatMessage from "./chat-message";
 import general from "../../general.module.css";
 import styles from "./chat.module.css";

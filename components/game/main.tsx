@@ -5,7 +5,7 @@ import Chat from "./chat/chat";
 import styles from "./main.module.css";
 import {GameStatus, PartialGameState} from "../../logic/gamestate";
 import PregameView from "./pregame/pregame-view";
-import {JoinInfo} from "../../logic/game-room";
+import {JoinInfo, Message, MessageSender} from "../../logic/game-room";
 
 interface GameViewProps {
   roomCode: string
@@ -13,18 +13,6 @@ interface GameViewProps {
 
 interface GameViewState extends PartialGameState {
   messages: Message[]
-}
-
-export interface Message {
-  sender: string,
-  text: string,
-  senderType: MessageSender
-}
-
-export enum MessageSender {
-  self,
-  system,
-  otherPlayer
 }
 
 export default class GameView

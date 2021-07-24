@@ -37,7 +37,7 @@ nextApp.prepare().then(() => {
   // Send people to the game room when they join
   expressApp.get('/game/:roomCode',
       (req: Express.Request, res: Express.Response) => {
-    roomManager.sendToRoom(req, res, nextHandler);
+    roomManager.sendToRoom(req, res, nextHandler).then();
   });
 
   expressApp.get('*',

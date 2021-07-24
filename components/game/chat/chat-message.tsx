@@ -1,7 +1,7 @@
 import * as React from "react";
 
+import {Message, MessageSender} from "../../../logic/game-room";
 import styles from "./chat.module.css";
-import {Message, MessageSender} from "../main";
 
 function senderStyle(senderType: MessageSender): string {
   return senderType === MessageSender.self ? styles.selfSender : styles.sender;

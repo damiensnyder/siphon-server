@@ -34,7 +34,7 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
   }
 
   componentDidMount() {
-    this.fetchGames().then();
+    this.fetchRooms().then();
   }
 
   componentWillUnmount() {
@@ -44,14 +44,14 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
     });
   }
 
-  async fetchGames() {
-    let res = await fetch('/api/activeGames', {
+  async fetchRooms() {
+    let res = await fetch('/api/activeRooms', {
       method: 'GET'
     });
-    const games = await res.json();
+    const rooms = await res.json();
     if (res.status === 200) {
       this.setState({
-        rooms: games,
+        rooms: rooms,
         fetchStatus: FetchStatus.success
       });
     } else if (this.state.fetchStatus === FetchStatus.pending) {
@@ -61,7 +61,7 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
     }
 
     // Fetch again and double delay until next fetch.
-    setTimeout(this.fetchGames.bind(this), 15000 * 2 ** this.state.numFetches);
+    setTimeout(this.fetchRooms.bind(this), 15000 * 2 ** this.state.numFetches);
     this.setState({
       numFetches: this.state.numFetches + 1
     });
