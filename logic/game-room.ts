@@ -117,7 +117,7 @@ export default class GameRoom {
     if (this.gs.gameStatus === GameStatus.midgame) {
       viewer.beginGame();
     }
-    viewer.emitGameState(this.gs);
+    viewer.emitGameState(this.gs.generateViewpoint());
   }
 
   // Add the player to the game, unless their join info is invalid.
@@ -144,7 +144,7 @@ export default class GameRoom {
       viewer.joinGame(replacedPov);
       this.players.splice(replacedPov, 0, viewer);
       this.gs.players[replacedPov].isConnected = true;
-      viewer.emitGameState(this.gs);
+      viewer.emitGameState(this.gs.generateViewpoint(replacedPov));
 
       this.broadcastSystemMsg(
         viewer.socket,

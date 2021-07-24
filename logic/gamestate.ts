@@ -15,7 +15,9 @@ interface Player {
 
 export interface PartialGameState {
   name?: string
-  isConnected?: boolean,
+  isConnected: boolean,
+  joined: boolean,
+  gameStatus?: GameStatus
   isReady?: boolean,
   players?: any[],
   roomSettings?: RoomSettings
@@ -71,7 +73,8 @@ export default class GameState {
 
   generateViewpoint(pov?: number): PartialGameState {
     return {
-      isConnected: true
+      isConnected: true,
+      joined: pov !== undefined
     };
   }
 }

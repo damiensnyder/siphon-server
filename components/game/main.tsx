@@ -3,7 +3,9 @@ import SocketIo from "socket.io-client";
 
 import Chat from "./chat/chat";
 import styles from "./main.module.css";
-import {PartialGameState} from "../../logic/gamestate";
+import {GameStatus, PartialGameState} from "../../logic/gamestate";
+import PregameView from "./pregame/pregame-view";
+import {JoinInfo} from "../../logic/game-room";
 
 interface GameViewProps {
   roomCode: string
@@ -27,10 +29,10 @@ export default class GameView
   constructor(props) {
     super(props);
 
-    this.chatCallback = this.chatCallback.bind(this);
     this.state = {
       messages: [],
       isConnected: false,
+      joined: false,
       isReady: false,
       players: []
     };
@@ -95,6 +97,13 @@ export default class GameView
     this.socket.emit("msg", msgText);
   }
 
+  joinCallback(joinInfo: JoinInfo) {
+    this.setState({
+      players: this.state.players.concat(joinInfo)
+    });
+    this.socket.emit("join", joinInfo);
+  }
+
   // Adds a message to the Chat component.
   addMsg(msg: Message) {
     const messages: Message[] = this.state.messages;
@@ -109,10 +118,15 @@ export default class GameView
       <div id={styles.root}>
         <div id={styles.sidebar}>
           <Chat messages={this.state.messages}
-                callback={this.chatCallback} />
+                callback={this.chatCallback.bind(this)} />
         </div>
         <div id={styles.gamePane}>
-
+          {
+            this.state.gameStatus === GameStatus.pregame ?
+                <PregameView joinCallback={this.joinCallback.bind(this)}
+                             {...this.state} /> :
+                null
+          }
         </div>
       </div>
     );
