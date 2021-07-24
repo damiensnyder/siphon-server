@@ -1,35 +1,40 @@
-import React from 'react';
-import Router from 'next/router';
+import React from "react";
+import Router from "next/router";
 
-import TextInput from '../text-input';
-import GameItem from './game-item';
-import general from '../general.module.css';
-import styles from './main.module.css';
-import joinStyles from './join-menu.module.css';
+import TextInput from "../text-input";
+import RoomItem from "./game-item";
+import general from "../general.module.css";
+import styles from "./main.module.css";
+import joinStyles from "./join-menu.module.css";
 
-class JoinMenu extends React.Component {
+enum FetchStatus {
+  pending,
+  success,
+  error
+}
+
+interface JoinMenuState {
+  roomCode: string,
+  fetchStatus: FetchStatus,
+  rooms: {
+    roomCode: string,
+    nation: string,
+    name: string,
+    private: false
+  }[];
+}
+
+class JoinMenu extends React.Component<void, JoinMenuState> {
   roomCodeInput: React.RefObject<any>;
   numFetches: number;
-  state: {
-    roomCode: string,
-    fetched: boolean,
-    error: boolean,
-    games: {
-      roomCode: string,
-      nation: string,
-      name: string,
-      private: false
-    }[];
-  }
 
   constructor(props) {
     super(props);
 
     this.state = {
       roomCode: "",
-      fetched: false,
-      error: false,
-      games: []
+      fetchStatus: FetchStatus.pending,
+      rooms: []
     }
 
     this.roomCodeInput = React.createRef();
@@ -43,8 +48,7 @@ class JoinMenu extends React.Component {
   componentWillUnmount() {
     this.setState({
       roomCode: "",
-      fetched: false,
-      error: false
+      fetchStatus: FetchStatus.pending
     });
   }
 
@@ -53,15 +57,14 @@ class JoinMenu extends React.Component {
       method: 'GET'
     });
     const games = await res.json();
-    if (res.status == 200) {
+    if (res.status === 200) {
       this.setState({
-        games: games,
-        fetched: true
+        rooms: games,
+        fetchStatus: FetchStatus.success
       });
-    } else if (!this.state.fetched) {
+    } else if (this.state.fetchStatus === FetchStatus.pending) {
       this.setState({
-        error: true,
-        fetched: true
+        fetchStatus: FetchStatus.error
       });
     }
 
@@ -70,34 +73,34 @@ class JoinMenu extends React.Component {
     this.numFetches++;
   }
 
-  gamesToJsx() {
-    if (!this.state.fetched) {
+  gamesToJsx(): JSX.Element | JSX.Element[] {
+    if (this.state.fetchStatus === FetchStatus.pending) {
       return <div>Loading...</div>;
     }
-    if (this.state.error) {
+    if (this.state.fetchStatus === FetchStatus.error) {
       return <div>Error fetching games.</div>;
     }
-    if (this.state.games.length == 0) {
+    if (this.state.rooms.length === 0) {
       return <div>No games found.</div>;
     }
 
-    return this.state.games.map((game) => {
-      return <GameItem key={game.roomCode}
-                       info={game} />;
+    return this.state.rooms.map((room) => {
+      return <RoomItem key={room.roomCode}
+                       info={room} />;
     });
   }
 
-  roomCodeCallback(text) {
+  roomCodeCallback(text: string) {
     this.setState({
       roomCode: text
     });
   }
 
   submitCallback() {
-    Router.push('/game/' + this.state.roomCode).then();
+    Router.push(`/game/${this.state.roomCode}`).then();
   }
 
-  render(): React.ReactNode {
+  render(): JSX.Element {
     return (
       <div className={styles.menuOuter}>
         <h2>Active Games</h2>

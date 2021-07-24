@@ -2,98 +2,79 @@ import React from "react";
 import Router from "next/router";
 
 import TextInput from "../text-input";
-import SelectInput from "../select-input";
 import CheckboxInput from "../checkbox-input";
 import general from "../general.module.css";
 import styles from "./main.module.css";
 
-const NATIONS: string[] = [
-  "Kenderland",
-  "Otria"
-];
+interface CreateMenuState {
+  roomName: string,
+  isPrivate: boolean
+}
 
-class CreateMenu extends React.Component {
-  state: {
-    name: string,
-    nation: string,
-    private: boolean
-  }
-
+class CreateMenu extends React.Component<void, CreateMenuState> {
   constructor(props) {
     super(props);
 
     this.state = {
-      name: "",
-      nation: NATIONS[0],
-      private: true
+      roomName: "",
+      isPrivate: true
     }
   }
 
   componentWillUnmount() {
     this.setState({
-      name: ""
+      roomName: ""
     });
   }
 
-  nameCallback(text) {
+  nameCallback(text: string) {
     this.setState({
-      name: text
+      roomName: text
     });
   }
 
-  nationCallback(option: string): void {
+  privateCallback(isPrivate: boolean) {
     this.setState({
-      nation: option
-    });
-  }
-
-  privateCallback(isPrivate: boolean): void {
-    this.setState({
-      private: isPrivate
+      isPrivate: isPrivate
     });
   }
 
   async createGame() {
-    const settings = {
-      name: this.state.name,
-      nation: this.state.nation,
-      private: this.state.private
+    const roomSettings: CreateMenuState = {
+      roomName: this.state.roomName,
+      isPrivate: this.state.isPrivate
     };
-    if (this.state.name.length === 0) {
-      settings.name = "My Game";
+    if (this.state.roomName.length === 0) {
+      roomSettings.roomName = "My Game";
     }
 
     let res = await fetch('/create', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({settings: settings})
+      body: JSON.stringify({roomSettings: roomSettings})
     });
 
     const resInfo = await res.json();
     if (res.status === 200) {
-      await Router.push('/game/' + resInfo.gameCode);
+      await Router.push(`/game/${resInfo.roomCode}`);
     }
   }
 
-  render(): React.ReactNode {
+  render(): JSX.Element {
     return (
       <div className={styles.menuOuter}>
         <h2>Create Game</h2>
-        <TextInput label={'Name:'}
+        <TextInput label={'Room name:'}
             maxLength={40}
-            text={this.state.name}
+            text={this.state.roomName}
             placeholder={'My Game'}
             textCallback={this.nameCallback.bind(this)}
             submitCallback={this.createGame.bind(this)} />
-        <SelectInput label={'Nation:'}
-            options={NATIONS}
-            selected={this.state.nation}
-            selectCallback={this.nationCallback.bind(this)} />
         <CheckboxInput label={'Private:'}
-            checked={this.state.private}
+            checked={this.state.isPrivate}
             checkCallback={this.privateCallback.bind(this)} />
         <div className={general.spacer}>
-          <button className={general.actionBtn + ' ' + general.priorityBtn}
+          <button className={`${general.actionBtn} ${general.priorityBtn}`}
               onClick={this.createGame.bind(this)}>
             Create
           </button>

@@ -3,7 +3,6 @@ import io from "socket.io-client";
 
 import PlayersView from "./players/players-view";
 import Chat from "./chat/chat";
-// @ts-ignore
 import styles from "./main.module.css";
 import GamestateManager from "./gamestate-manager";
 
@@ -60,7 +59,7 @@ export default class GameView extends React.Component {
   // Creates the socket connection to the server and handlers for when messages
   // are received from the server.
   initializeSocket() {
-    this.socket = io.connect('/game/' + this.props.roomCode);
+    this.socket = io.connect(`/game/${this.props.roomCode}`);
 
     this.socket.on('connection', () => {
       this.gamestateManager.updateAfter('connection');
