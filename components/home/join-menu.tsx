@@ -90,8 +90,8 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
     });
   }
 
-  submitCallback() {
-    Router.push(`/game/${this.state.roomCode}`).then();
+  async submitCallback() {
+    await Router.push(`/game/${this.state.roomCode}`);
   }
 
   render(): JSX.Element {
