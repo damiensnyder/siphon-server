@@ -8,8 +8,8 @@ import {GameStatus} from "../../logic/gamestate";
 
 type GameStatusString = "Ended" | "In game" | "In lobby";
 
-function joinGame(gameCode) {
-  Router.push('/game/' + gameCode).then();
+function joinRoom(roomCode: string) {
+  Router.push(`/game/${roomCode}`).then();
 }
 
 function gameStatusString(gameStatus: GameStatus): GameStatusString {
@@ -30,7 +30,7 @@ function RoomItem(props: RoomInfo): JSX.Element {
           <div>Status: {gameStatusString(props.gameStatus)}</div>
         </div>
         <button className={general.actionBtn}
-                onClick={() => joinGame(props.roomCode)}>
+                onClick={() => joinRoom(props.roomCode)}>
           Join
         </button>
       </div>
