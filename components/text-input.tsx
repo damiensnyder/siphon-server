@@ -6,7 +6,7 @@ interface TextInputProps {
   maxLength: number,
   value: string,
   label: string,
-  placeholder: string,
+  placeholder?: string,
   textCallback: (newText: string) => void
   submitCallback: () => void
 }
