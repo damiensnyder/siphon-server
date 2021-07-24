@@ -39,7 +39,7 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 
   msgsJsx(): JSX.Element[] {
     return this.props.messages.map((msg, i) => {
-      return <ChatMessage msg={msg} key={i} />;
+      return <ChatMessage {...msg} key={i} />;
     });
   }
 
