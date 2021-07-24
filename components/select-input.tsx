@@ -2,32 +2,37 @@ import React from "react";
 
 import general from "./general.module.css";
 
-function optionsJsx(options: string[]): React.ReactNode {
+interface SelectInputProps {
+  label: string,
+  selected: string,
+  options: string[],
+  selectCallback: (string) => void
+}
+
+function optionsJsx(options: string[]): JSX.Element[] {
   return options.map((option) => {
     return (
       <option value={option}
-          key={option}>{option}</option>
+              key={option}>{option}</option>
     );
   });
 }
 
-function SelectInput(props): React.ReactElement {
-  const selectHandler = (e): void => {
+export default function SelectInput(props: SelectInputProps): JSX.Element {
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     props.selectCallback(e.target.value);
   };
 
   return (
     <div className={general.horizWrapper}>
-      <div className={general.horizWrapper + ' ' + general.spacer}>
+      <div className={`${general.horizWrapper} ${general.spacer}`}>
         {props.label}
         <select className={general.settingsInput}
-            value={props.selected}
-            onChange={selectHandler}>
+                value={props.selected}
+                onChange={handleSelect}>
           {optionsJsx(props.options)}
         </select>
       </div>
     </div>
   );
 }
-
-export default SelectInput;

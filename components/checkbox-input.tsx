@@ -2,8 +2,14 @@ import React from "react";
 
 import general from "./general.module.css";
 
-function CheckboxInput(props): React.ReactElement {
-  const checkHandler = (e): void => {
+interface CheckboxInputProps {
+  label: string
+  checked: boolean,
+  checkCallback: (newIsChecked: boolean) => void
+}
+
+export default function CheckboxInput(props: CheckboxInputProps): JSX.Element {
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.checkCallback(e.target.checked);
   };
 
@@ -12,9 +18,7 @@ function CheckboxInput(props): React.ReactElement {
       {props.label}
       <input type={'checkbox'}
           checked={props.checked}
-          onChange={checkHandler} />
+          onChange={handleCheck} />
     </div>
   );
 }
-
-export default CheckboxInput;

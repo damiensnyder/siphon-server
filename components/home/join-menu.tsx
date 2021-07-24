@@ -67,7 +67,7 @@ class JoinMenu extends React.Component<void, JoinMenuState> {
     });
   }
 
-  gamesToJsx(): JSX.Element | JSX.Element[] {
+  roomsListJsx(): JSX.Element | JSX.Element[] {
     if (this.state.fetchStatus === FetchStatus.pending) {
       return <div>Loading...</div>;
     }
@@ -99,16 +99,16 @@ class JoinMenu extends React.Component<void, JoinMenuState> {
       <div className={styles.menuOuter}>
         <h2>Active Games</h2>
         <div id={joinStyles.activeGamesWindow}>
-          {this.gamesToJsx.bind(this)()}
+          {this.roomsListJsx.bind(this)()}
         </div>
         <div className={general.horizWrapper}>
           <TextInput label={"Game code:"}
                      maxLength={20}
                      value={this.state.roomCode}
-                     textCallback={this.roomCodeCallback.bind(this)}
+                     changeCallback={this.roomCodeCallback.bind(this)}
                      submitCallback={this.submitCallback.bind(this)} />
           <div className={general.spacer}>
-            <button className={general.actionBtn + ' ' + general.priorityBtn}
+            <button className={`${general.actionBtn} ${general.priorityBtn}`}
                     onClick={this.submitCallback.bind(this)}>
               Join
             </button>

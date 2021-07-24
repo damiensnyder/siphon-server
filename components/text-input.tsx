@@ -7,19 +7,19 @@ interface TextInputProps {
   value: string,
   label: string,
   placeholder?: string,
-  textCallback: (newText: string) => void
+  changeCallback: (newValue: string) => void
   submitCallback: () => void
 }
 
-function TextInput(props: TextInputProps): JSX.Element {
+export default function TextInput(props: TextInputProps): JSX.Element {
   const submitIfEnterPressed = (key: React.KeyboardEvent<HTMLInputElement>) => {
     if (key.code === "Enter") {
       props.submitCallback();
     }
   };
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    props.textCallback(e.target.value);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    props.changeCallback(e.target.value);
   };
 
   return (
@@ -32,7 +32,7 @@ function TextInput(props: TextInputProps): JSX.Element {
                    maxLength={props.maxLength}
                    value={props.value}
                    placeholder={props.placeholder}
-                   onChange={handleTextChange}
+                   onChange={handleChange}
                    onKeyDown={submitIfEnterPressed} />
           </div>
         </div>
@@ -40,5 +40,3 @@ function TextInput(props: TextInputProps): JSX.Element {
     </div>
   );
 }
-
-export default TextInput;

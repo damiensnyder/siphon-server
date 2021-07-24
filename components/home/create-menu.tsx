@@ -68,7 +68,7 @@ class CreateMenu extends React.Component<void, CreateMenuState> {
             maxLength={40}
             value={this.state.roomName}
             placeholder={'My Game'}
-            textCallback={this.nameCallback.bind(this)}
+            changeCallback={this.nameCallback.bind(this)}
             submitCallback={this.createGame.bind(this)} />
         <CheckboxInput label={'Private:'}
             checked={this.state.isPrivate}
