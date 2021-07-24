@@ -15,10 +15,10 @@ interface ChatState {
 }
 
 export default class Chat extends React.Component<ChatProps, ChatState> {
-  textInput: any;
-  messagesInner: any;
-  bottomMessage: any;
-  messageJustSent: any;
+  textInput: React.RefObject<HTMLInputElement>;
+  messagesInner: React.RefObject<HTMLDivElement>;
+  bottomMessage: React.RefObject<HTMLDivElement>;
+  messageJustSent: boolean;
 
   constructor(props) {
     super(props);
