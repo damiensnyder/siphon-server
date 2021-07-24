@@ -1,5 +1,5 @@
 import {Socket} from "socket.io";
-import {Viewpoint} from "./gamestate";
+import {PartialGameState} from "./gamestate";
 
 type Callback = (viewer: Viewer, actionType: string, data?: unknown) => void;
 
@@ -54,7 +54,7 @@ export default class Viewer {
     }
   }
 
-  emitGameState(viewpoint: Viewpoint): void {
+  emitGameState(viewpoint: PartialGameState): void {
     this.socket.emit('update', viewpoint);
   }
 }

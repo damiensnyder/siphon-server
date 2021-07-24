@@ -1,4 +1,4 @@
-import {GameplaySettings} from "./room-manager";
+import {GameplaySettings, RoomSettings} from "./room-manager";
 import {JoinInfo} from "./game-room";
 
 export enum GameStatus {
@@ -13,19 +13,22 @@ interface Player {
   isReady: boolean
 }
 
-export interface Viewpoint {
-
+export interface PartialGameState {
+  name?: string
+  isConnected?: boolean,
+  isReady?: boolean,
+  players?: any[],
+  roomSettings?: RoomSettings
 }
 
 export default class GameState {
-  stageOfGame: GameStatus;
-
+  gameStatus: GameStatus;
   players: Player[];
   gameplaySettings: GameplaySettings;
 
   constructor(settings: GameplaySettings) {
     this.gameplaySettings = settings;
-    this.stageOfGame = GameStatus.pregame;
+    this.gameStatus = GameStatus.pregame;
     this.players = [];
   }
 
@@ -55,18 +58,20 @@ export default class GameState {
     this.players.forEach((player) => {
       player.isReady = false;
     });
-    this.stageOfGame = GameStatus.midgame;
+    this.gameStatus = GameStatus.midgame;
   }
 
   resetGame() {
-    this.stageOfGame = GameStatus.pregame;
+    this.gameStatus = GameStatus.pregame;
   }
 
   handleGameAction(pov: number, actionInfo: unknown) {
 
   }
 
-  generateViewpoint(pov?: number): Viewpoint {
-    return {};
+  generateViewpoint(pov?: number): PartialGameState {
+    return {
+      isConnected: true
+    };
   }
 }

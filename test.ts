@@ -7,7 +7,7 @@ function createTestRoom(roomName: string,
                         gameplaySettings: GameplaySettings,
                         numPlayers: number) {
   const gameRoom: GameRoom = new GameRoom(roomManager.io, {
-    name: roomName,
+    roomName: roomName,
     roomCode: roomCode,
     isPrivate: false,
     gameplaySettings: {}

@@ -6,9 +6,9 @@ import {Express} from "express";
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export interface RoomSettings {
-  name: string,
+  roomName: string,
   roomCode: string,
-  isPrivate: boolean,
+  isPrivate?: boolean,
   gameplaySettings: GameplaySettings
 }
 
@@ -39,8 +39,8 @@ export default class RoomManager {
     const roomSettings: RoomSettings = req.body.settings;
     roomSettings.roomCode = roomCode;
 
-    if (roomSettings.name.length === 0) {
-      roomSettings.name = "Untitled Room";
+    if (roomSettings.roomName.length === 0) {
+      roomSettings.roomName = "Untitled Room";
     }
 
     this.activeRooms[roomCode] = new GameRoom(this.io,
