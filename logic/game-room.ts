@@ -1,7 +1,7 @@
 import SocketIo, {Socket} from "socket.io";
 
 import {GameplaySettings, RoomSettings} from "./room-manager";
-import GameState, {StageOfGame} from "./gamestate";
+import GameState, {GameStatus} from "./gamestate";
 import Viewer from "./viewer";
 
 const TEARDOWN_TIME: number = 3600000;
@@ -10,7 +10,7 @@ export interface RoomInfo {
   name: string,
   roomCode: string,
   players: number,
-  stageOfGame: StageOfGame,
+  gameStatus: GameStatus,
   gameplaySettings: GameplaySettings
 }
 
@@ -114,7 +114,7 @@ export default class GameRoom {
       isSelf: false,
       isSystem: true
     });
-    if (this.gs.stageOfGame === StageOfGame.midgame) {
+    if (this.gs.stageOfGame === GameStatus.midgame) {
       viewer.beginGame();
     }
     viewer.emitGameState(this.gs);
@@ -139,7 +139,7 @@ export default class GameRoom {
 
   handleReplace(viewer: Viewer, replacedPov: number) {
     this.io.emit('newreplace', replacedPov);
-    if (this.gs.stageOfGame === StageOfGame.pregame &&
+    if (this.gs.stageOfGame === GameStatus.pregame &&
         !this.gs.players[replacedPov].isConnected) {
       viewer.joinGame(replacedPov);
       this.players.splice(replacedPov, 0, viewer);
@@ -155,7 +155,7 @@ export default class GameRoom {
 
   handleGameAction(viewer: Viewer, actionInfo: unknown): void {
     this.gs.handleGameAction(viewer.pov, actionInfo);
-    if (this.gs.stageOfGame === StageOfGame.postgame) {
+    if (this.gs.stageOfGame === GameStatus.postgame) {
       this.viewers.forEach((viewer) => viewer.endGame());
     }
     this.emitGameStateToAll();
@@ -169,11 +169,11 @@ export default class GameRoom {
         isReady: isReady
       });
       if (this.gs.allPlayersAreReady()) {
-        if (this.gs.stageOfGame === StageOfGame.pregame) {
+        if (this.gs.stageOfGame === GameStatus.pregame) {
           this.viewers.forEach((viewer) => viewer.beginGame());
           this.gs.beginGame();
           this.emitGameStateToAll();
-        } else if (this.gs.stageOfGame === StageOfGame.postgame) {
+        } else if (this.gs.stageOfGame === GameStatus.postgame) {
           this.resetGame();
           this.emitGameStateToAll();
         }
@@ -218,7 +218,7 @@ export default class GameRoom {
   removePlayer(pov: number) {
     const name: string = this.gs.players[pov].name;
     this.players.splice(pov, 1);
-    if (this.gs.stageOfGame === StageOfGame.pregame) {
+    if (this.gs.stageOfGame === GameStatus.pregame) {
       this.gs.players.splice(pov, 1);
       for (let i = pov; i < this.players.length; i++) {
         this.players[i].pov = i;
@@ -264,7 +264,7 @@ export default class GameRoom {
       name: this.roomSettings.name,
       roomCode: this.roomSettings.roomCode,
       players: this.players.length,
-      stageOfGame: this.gs.stageOfGame,
+      gameStatus: this.gs.stageOfGame,
       gameplaySettings: this.gs.gameplaySettings
     };
   }

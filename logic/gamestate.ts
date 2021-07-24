@@ -1,7 +1,7 @@
 import {GameplaySettings} from "./room-manager";
 import {JoinInfo} from "./game-room";
 
-export enum StageOfGame {
+export enum GameStatus {
   pregame,
   midgame,
   postgame
@@ -18,14 +18,14 @@ export interface Viewpoint {
 }
 
 export default class GameState {
-  stageOfGame: StageOfGame;
+  stageOfGame: GameStatus;
 
   players: Player[];
   gameplaySettings: GameplaySettings;
 
   constructor(settings: GameplaySettings) {
     this.gameplaySettings = settings;
-    this.stageOfGame = StageOfGame.pregame;
+    this.stageOfGame = GameStatus.pregame;
     this.players = [];
   }
 
@@ -55,11 +55,11 @@ export default class GameState {
     this.players.forEach((player) => {
       player.isReady = false;
     });
-    this.stageOfGame = StageOfGame.midgame;
+    this.stageOfGame = GameStatus.midgame;
   }
 
   resetGame() {
-    this.stageOfGame = StageOfGame.pregame;
+    this.stageOfGame = GameStatus.pregame;
   }
 
   handleGameAction(pov: number, actionInfo: unknown) {
