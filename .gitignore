@@ -32,3 +32,4 @@ yarn-error.log*
 
 # auto-generated JS files
 *.js
+*.jsx
