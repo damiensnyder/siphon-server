@@ -15,7 +15,7 @@ interface GameViewState extends PartialGameState {
   messages: Message[]
 }
 
-interface Message {
+export interface Message {
   sender: string,
   text: string,
   isSelf: boolean,
@@ -118,7 +118,7 @@ export default class GameView
       <div id={styles.root}>
         <div id={styles.sidebar}>
           <Chat messages={this.state.messages}
-                callback={this.chatCallback.bind(this)} />
+                chatCallback={this.chatCallback.bind(this)} />
         </div>
         <div id={styles.gamePane}>
           {
