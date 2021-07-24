@@ -3,6 +3,7 @@ import SocketIo, {Socket} from "socket.io";
 import {GameplaySettings, RoomSettings} from "./room-manager";
 import GameState, {GameStatus} from "./gamestate";
 import Viewer from "./viewer";
+import {MessageSender} from "../components/game/main";
 
 const TEARDOWN_TIME: number = 3600000;
 
@@ -111,8 +112,7 @@ export default class GameRoom {
     viewer.socket.emit('msg', {
       sender: "Game",
       text: "Connected to chat.",
-      isSelf: false,
-      isSystem: true
+      senderType: MessageSender.system
     });
     if (this.gs.gameStatus === GameStatus.midgame) {
       viewer.beginGame();
@@ -188,8 +188,7 @@ export default class GameRoom {
       viewer.socket.broadcast.emit('msg', {
         sender: this.gs.players[viewer.pov].name,
         text: msg.trim(),
-        isSelf: false,
-        isSystem: false
+        senderType: MessageSender.otherPlayer
       });
     }
   }
@@ -237,8 +236,7 @@ export default class GameRoom {
     socket.broadcast.emit('msg', {
       sender: "Game",
       text: msg,
-      isSelf: false,
-      isSystem: true
+      senderType: MessageSender.system
     });
   }
 
@@ -247,8 +245,7 @@ export default class GameRoom {
     this.io.emit('msg', {
       sender: "Game",
       text: msg,
-      isSelf: false,
-      isSystem: true
+      senderType: MessageSender.system
     });
   }
 

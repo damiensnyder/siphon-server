@@ -18,8 +18,13 @@ interface GameViewState extends PartialGameState {
 export interface Message {
   sender: string,
   text: string,
-  isSelf: boolean,
-  isSystem: boolean
+  senderType: MessageSender
+}
+
+export enum MessageSender {
+  self,
+  system,
+  otherPlayer
 }
 
 export default class GameView
@@ -72,8 +77,7 @@ export default class GameView
       this.addMsg({
         sender: "Game",
         text: "You have been disconnected.",
-        isSelf: false,
-        isSystem: true
+        senderType: MessageSender.system
       });
     });
 
@@ -91,8 +95,7 @@ export default class GameView
     this.addMsg({
       sender: "You",
       text: msgText,
-      isSelf: true,
-      isSystem: false
+      senderType: MessageSender.self
     });
     this.socket.emit("msg", msgText);
   }
