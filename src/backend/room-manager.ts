@@ -35,8 +35,8 @@ export default class RoomManager {
 
   // Create a game room and send the room code along with status 200.
   createRoom(req: Express.Request, res: Express.Response) {
-    const roomCode: string = this.generateRoomCode()
     const roomSettings: RoomSettings = req.body.roomSettings;
+    const roomCode = this.generateRoomCode();
     roomSettings.roomCode = roomCode;
 
     if (roomSettings.roomName.length === 0) {
@@ -47,7 +47,7 @@ export default class RoomManager {
         roomSettings,
         this.teardownCallback.bind(this));
     res.status = 200;
-    res.setHeader('Content-Type', 'application/json');
+    res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({roomCode: roomCode}));
   }
   
@@ -55,10 +55,10 @@ export default class RoomManager {
     this.activeRooms[gameRoom.roomSettings.roomCode] = gameRoom;
   }
 
-  generateRoomCode() {
+  generateRoomCode(): string {
    const numChars: number = ALPHABET.length;
    const gameCodeLength: number = Math.ceil(
-     Math.log(Object.keys(this.activeRooms).length + 4) / Math.log(26)) + 1;
+     Math.log(Object.keys(this.activeRooms).length + 2) / Math.log(26)) + 3;
 
    let roomCode: string = "";
    while (roomCode === "") {

@@ -24,23 +24,23 @@ const nextHandler: NextHandler = nextApp.getRequestHandler();
 export const roomManager: RoomManager = new RoomManager(io);
 
 nextApp.prepare().then(() => {
-  expressApp.post('/create',
+  expressApp.post("/create",
       (req: Express.Request, res: Express.Response) => {
     roomManager.createRoom(req, res);
   });
 
-  expressApp.get('/api/activeRooms',
+  expressApp.get("/api/activeRooms",
       (req: Express.Request, res: Express.Response) => {
     roomManager.listActiveRooms(req, res);
   });
 
   // Send people to the game room when they join
-  expressApp.get('/game/:roomCode',
+  expressApp.get("/game/:roomCode",
       (req: Express.Request, res: Express.Response) => {
     return roomManager.sendToRoom(req, res, nextHandler);
   });
 
-  expressApp.get('*',
+  expressApp.get("*",
       (req: Express.Request, res: Express.Response) => {
     return nextHandler(req, res);
   });
