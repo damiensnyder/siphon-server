@@ -4,7 +4,7 @@ import TextInput from "../../text-input";
 import InviteLink from "./invite-link";
 import general from "../../general.module.css";
 import styles from "./pregame.module.css";
-import {JoinInfo} from "../../../logic/game-room";
+import {JoinInfo} from "../../../backend/game-room";
 
 interface JoinPanelProps {
   roomCode: string,

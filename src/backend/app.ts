@@ -5,7 +5,7 @@ import Next from "next";
 import {NextServer} from "next/dist/server/next";
 import {UrlWithParsedQuery} from "url";
 
-import RoomManager from "./logic/room-manager";
+import RoomManager from "./room-manager";
 
 const expressApp: Express.Application = Express();
 expressApp.use(Express.urlencoded({extended: true}));

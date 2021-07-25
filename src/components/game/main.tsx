@@ -3,9 +3,9 @@ import SocketIo from "socket.io-client";
 
 import Chat from "./chat/chat";
 import styles from "./main.module.css";
-import {GameStatus, PartialGameState} from "../../logic/gamestate";
+import {GameStatus, PartialGameState} from "../../backend/gamestate";
 import PregameView from "./pregame/pregame-view";
-import {JoinInfo, Message, MessageSender} from "../../logic/game-room";
+import {JoinInfo, Message, MessageSender} from "../../backend/game-room";
 
 interface GameViewProps {
   roomCode: string

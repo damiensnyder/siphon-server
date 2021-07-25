@@ -2,7 +2,7 @@ import React from "react";
 
 import general from "../../general.module.css";
 import styles from "./helper-bar.module.css";
-import {GameStatus, PartialGameState} from "../../../logic/gamestate";
+import {GameStatus, PartialGameState} from "../../../backend/gamestate";
 
 interface HelperBarProps extends PartialGameState {
   readyCallback: (string) => void

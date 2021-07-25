@@ -1,6 +1,6 @@
 import GameRoom, {RoomInfo} from "./game-room";
 import SocketIo from "socket.io";
-import {NextHandler} from "../app";
+import {NextHandler} from "./app";
 import {Express} from "express";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";

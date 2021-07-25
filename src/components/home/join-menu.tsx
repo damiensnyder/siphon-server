@@ -6,7 +6,7 @@ import RoomItem from "./room-item";
 import general from "../general.module.css";
 import styles from "./main.module.css";
 import joinStyles from "./join-menu.module.css";
-import {RoomInfo} from "../../logic/game-room";
+import {RoomInfo} from "../../backend/game-room";
 
 enum FetchStatus {
   pending,

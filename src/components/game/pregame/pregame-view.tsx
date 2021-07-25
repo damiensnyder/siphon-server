@@ -5,8 +5,8 @@ import InviteLink from "./invite-link";
 import general from "../../general.module.css";
 import styles from "./pregame.module.css";
 import HelperBar from "../helper-bar/helper-bar";
-import {JoinInfo} from "../../../logic/game-room";
-import {PartialGameState} from "../../../logic/gamestate";
+import {JoinInfo} from "../../../backend/game-room";
+import {PartialGameState} from "../../../backend/gamestate";
 
 interface PregameViewProps extends PartialGameState {
   joinCallback: (joinInfo: JoinInfo) => void

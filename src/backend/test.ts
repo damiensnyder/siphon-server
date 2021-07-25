@@ -1,6 +1,6 @@
 import {roomManager} from "./app";
-import GameRoom from "./logic/game-room";
-import {GameplaySettings} from "./logic/room-manager";
+import GameRoom from "./game-room";
+import {GameplaySettings} from "./room-manager";
 
 function createTestRoom(roomName: string,
                         roomCode: string,
