@@ -14,11 +14,11 @@ function createTestRoom(roomName: string,
   }, () => {});
 
   for (let i = 1; i <= numPlayers; i++) {
-    gameRoom.gs.addPlayer({
+    gameRoom.gameState.addPlayer({
       name: `Player ${i}`
     });
   }
-  gameRoom.gs.players.forEach((player) => {
+  gameRoom.gameState.players.forEach((player) => {
     player.isConnected = false;
   });
 
