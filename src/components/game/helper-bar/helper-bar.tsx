@@ -3,9 +3,11 @@ import React from "react";
 import general from "../../general.module.css";
 import styles from "./helper-bar.module.css";
 import {GameStatus, PartialGameState} from "../../../backend/gamestate";
+import {PlayerInfo, RoomInfo} from "../../../backend/game-room";
 
-interface HelperBarProps extends PartialGameState {
-  readyCallback: (string) => void
+interface HelperBarProps extends PartialGameState, RoomInfo {
+  readyCallback: (string) => void,
+  playersList: PlayerInfo[]
 }
 
 interface HelperBarState {
@@ -33,7 +35,7 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
   }
 
   buttonLabel(): ReadyButtonText {
-    if (this.props.isReady) {
+    if (typeof(this.props.pov) === "number" && this.props.playersList[this.props.pov].isReady) {
       return "Cancel";
     } else if (this.props.gameStatus === GameStatus.pregame) {
       return "Ready";
@@ -82,7 +84,7 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
     const inactiveStyle = `${general.inactiveBtn2} ${styles.bigButton} `;
     const priorityStyle = `${buttonStyle} ${general.priorityBtn} `;
 
-    if (this.props.joined === null) {
+    if (typeof(this.props.pov) !== "number") {
       return null;
     } else if (this.props.gameStatus === GameStatus.pregame) {
       return (

@@ -5,14 +5,16 @@ import Chat from "./chat/chat";
 import styles from "./main.module.css";
 import {GameStatus, PartialGameState} from "../../backend/gamestate";
 import PregameView from "./pregame/pregame-view";
-import {JoinInfo, Message, MessageSender} from "../../backend/game-room";
+import {JoinInfo, Message, MessageSender, PlayerInfo, RoomInfo} from "../../backend/game-room";
 
 interface GameViewProps {
   roomCode: string
 }
 
-interface GameViewState extends PartialGameState {
-  messages: Message[]
+interface GameViewState extends PartialGameState, RoomInfo {
+  messages: Message[],
+  playersList: PlayerInfo[],
+  isConnected: boolean
 }
 
 export default class GameView
@@ -23,11 +25,13 @@ export default class GameView
     super(props);
 
     this.state = {
-      messages: [],
       isConnected: false,
-      joined: false,
-      isReady: false,
-      players: []
+      gameStatus: GameStatus.pregame,
+      players: 0,
+      roomCode: "",
+      roomName: "",
+      messages: [],
+      playersList: []
     };
   }
 
@@ -51,31 +55,30 @@ export default class GameView
   // are received from the server.
   initializeSocket() {
     this.socket = SocketIo.connect(`/game/${this.props.roomCode}`);
-
-    this.socket.on('connection', () => {
-      this.setState({
-        isConnected: true
-      });
+    this.socket.on("connection", this.handleConnection.bind(this));
+    this.socket.on("disconnect", this.handleDisconnect.bind(this));
+    this.socket.on("message", this.addMessage.bind(this));
+    this.socket.on("gameState", this.setState.bind(this));
+    this.socket.on("playersList", (newPlayersList: PlayerInfo[]) => {
+      this.setState({playersList: newPlayersList});
     });
+    this.socket.on("roomInfo", this.setState.bind(this));
+  }
 
-    this.socket.on('disconnect', () => {
-      this.setState({
-        isConnected: false
-      });
-      this.addMessage({
-        sender: "Game",
-        text: "You have been disconnected.",
-        senderType: MessageSender.system
-      });
+  handleConnection() {
+    this.setState({
+      isConnected: true
     });
+  }
 
-    this.socket.on('message', (message: Message) => {
-      this.addMessage(message);
+  handleDisconnect() {
+    this.setState({
+      isConnected: false
     });
-
-    this.socket.on('update', (newGameState: PartialGameState) => {
-      this.setState(newGameState);
-      document.title = newGameState.roomSettings.roomName;
+    this.addMessage({
+      sender: "Game",
+      text: "You have been disconnected.",
+      senderType: MessageSender.system
     });
   }
 
@@ -89,10 +92,15 @@ export default class GameView
   }
 
   joinCallback(joinInfo: JoinInfo) {
-    this.setState({
-      players: this.state.players.concat(joinInfo)
-    });
     this.socket.emit("join", joinInfo);
+  }
+
+  readyCallback(isReady: boolean) {
+    this.socket.emit("ready", isReady);
+  }
+
+  replaceCallback(pov: number) {
+    this.socket.emit("replace", pov);
   }
 
   // Adds a message to the Chat component.

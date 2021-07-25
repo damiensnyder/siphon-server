@@ -5,11 +5,12 @@ import InviteLink from "./invite-link";
 import general from "../../general.module.css";
 import styles from "./pregame.module.css";
 import HelperBar from "../helper-bar/helper-bar";
-import {JoinInfo} from "../../../backend/game-room";
+import {JoinInfo, PlayerInfo, RoomInfo} from "../../../backend/game-room";
 import {PartialGameState} from "../../../backend/gamestate";
 
-interface PregameViewProps extends PartialGameState {
-  joinCallback: (joinInfo: JoinInfo) => void
+interface PregameViewProps extends PartialGameState, RoomInfo {
+  joinCallback: (joinInfo: JoinInfo) => void,
+  playersList: PlayerInfo[]
 }
 
 function PregameView(props: PregameViewProps) {
@@ -17,10 +18,10 @@ function PregameView(props: PregameViewProps) {
     <div className={`${general.outerWrapper}
                      ${general.horizWrapper}
                      ${styles.panelContainer}`}>
-      {props.joined ?
+      {typeof(props.pov) !== "number" ?
           <JoinPanel joinCallback={props.joinCallback}
-                     roomCode={props.roomSettings.roomCode} /> :
-          <InviteLink roomCode={props.roomSettings.roomCode} />}
+                     roomCode={props.roomCode} /> :
+          <InviteLink roomCode={props.roomCode} />}
       <HelperBar {...props}
                  readyCallback={props.joinCallback} />
     </div>

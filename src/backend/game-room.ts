@@ -11,10 +11,10 @@ export interface RoomInfo {
   roomCode: string,
   players: number,
   gameStatus: GameStatus,
-  gameplaySettings: GameplaySettings
+  gameplaySettings?: GameplaySettings
 }
 
-interface ActionInfo {
+interface PacketInfo {
   viewer: Viewer,
   type: string,
   data?: unknown
@@ -22,6 +22,11 @@ interface ActionInfo {
 
 export interface JoinInfo {
   name: string
+}
+
+export interface PlayerInfo extends JoinInfo {
+  isReady: boolean,
+  isConnected: boolean
 }
 
 export interface Message {
@@ -43,8 +48,8 @@ export default class GameRoom {
   viewers: Viewer[];
   players: Viewer[];
   gameState: GameState;
-  handlingAction: boolean;
-  private actionQueue: ActionInfo[];
+  handlingPacket: boolean;
+  private packetQueue: PacketInfo[];
   private readonly teardownCallback: TeardownCallback;
   private readonly io: SocketIo;
   private teardownTimer: NodeJS.Timeout;
@@ -64,8 +69,8 @@ export default class GameRoom {
     this.players = [];
 
     this.io.on('connection', (socket: Socket) => {
-      const viewer = new Viewer(socket, this.enqueueAction);
-      this.enqueueAction(viewer, 'connect', null);
+      const viewer = new Viewer(socket, this.enqueuePacket);
+      this.enqueuePacket(viewer, 'connect', null);
     });
 
     this.handlers = {
@@ -77,9 +82,9 @@ export default class GameRoom {
       'message': this.handleMessage.bind(this),
       'disconnect': this.handleDisconnect.bind(this)
     }
-    this.actionQueue = [];
-    this.handlingAction = false;
-    this.enqueueAction = this.enqueueAction.bind(this);
+    this.packetQueue = [];
+    this.handlingPacket = false;
+    this.enqueuePacket = this.enqueuePacket.bind(this);
     this.teardownTimer = setTimeout(
         () => {this.teardownCallback(this)},
         TEARDOWN_TIME);
@@ -87,34 +92,36 @@ export default class GameRoom {
 
   // Sends actions to a queue that can be handled one at a time so they don't
   // interfere with each other.
-  enqueueAction(viewer: Viewer, actionType: string, data?: unknown) {
-    this.actionQueue.push({
+  enqueuePacket(viewer: Viewer, packetType: string, data?: unknown) {
+    this.packetQueue.push({
       viewer: viewer,
-      type: actionType,
+      type: packetType,
       data: data
     });
 
-    if (!this.handlingAction) {
-      this.handlingAction = true;
-      this.handleAction();
+    if (!this.handlingPacket) {
+      this.handlingPacket = true;
+      this.handlePacket();
     }
   }
 
-  // Handle the first action in the queue. If there are no more actions in the
-  // queue, show that it is done. Otherwise, handle the next action.
-  handleAction() {
-    const action = this.actionQueue[0];
-    this.handlers[action.type](action.viewer, action.data);
+  // Handle the first packet in the queue. If there are no more packets in the
+  // queue, show that it is done. Otherwise, handle the next packet.
+  handlePacket() {
+    const packet = this.packetQueue[0];
+    this.handlers[packet.type](packet.viewer, packet.data);
 
     clearTimeout(this.teardownTimer);
-    this.teardownTimer = setTimeout(() => {this.teardownCallback(this)},
-        TEARDOWN_TIME);
+    this.teardownTimer = setTimeout(
+        () => {this.teardownCallback(this)},
+        TEARDOWN_TIME
+    );
 
-    this.actionQueue.splice(0, 1);
-    if (this.actionQueue.length > 0) {
-      this.handleAction();
+    this.packetQueue.splice(0, 1);
+    if (this.packetQueue.length > 0) {
+      this.handlePacket();
     } else {
-      this.handlingAction = false;
+      this.handlingPacket = false;
     }
   }
 
@@ -138,18 +145,20 @@ export default class GameRoom {
       this.players.push(viewer);
       this.gameState.addPlayer(joinInfo);
 
-      this.broadcastSystemMsg(
+      this.broadcastSystemMessage(
         viewer.socket,
         `Player '${joinInfo.name}' has joined the game.`
       );
-      this.emitGameStateToAll();
+      this.emitPlayersListToAll();
     } else {
+      viewer.emitRoomInfo(this.roomInfo());
+      viewer.socket.emit('playersList', this.gameState.playersList);
       viewer.emitGameState(this.gameState.generateViewpoint(viewer.pov));
     }
   }
 
   handleReplace(viewer: Viewer, replacedPov: number) {
-    this.io.emit('newreplace', replacedPov);
+    this.emitPlayersListToAll()
     if (this.gameState.gameStatus === GameStatus.pregame &&
         !this.gameState.players[replacedPov].isConnected) {
       viewer.joinGame(replacedPov);
@@ -157,7 +166,7 @@ export default class GameRoom {
       this.gameState.players[replacedPov].isConnected = true;
       viewer.emitGameState(this.gameState.generateViewpoint(replacedPov));
 
-      this.broadcastSystemMsg(
+      this.broadcastSystemMessage(
         viewer.socket,
         `Player '${this.gameState.players[replacedPov].name}' has been replaced.`
       );
@@ -175,17 +184,16 @@ export default class GameRoom {
   handleReady(viewer: Viewer, isReady: unknown): void {
     if (typeof(isReady) === "boolean") {
       this.gameState.players[viewer.pov].isReady = isReady;
-      viewer.socket.broadcast.emit('newready', {
-        player: viewer.pov,
-        isReady: isReady
-      });
+      viewer.socket.broadcast.emit('playersList', this.gameState.playersList);
       if (this.gameState.allPlayersAreReady()) {
         if (this.gameState.gameStatus === GameStatus.pregame) {
           this.viewers.forEach((viewer) => viewer.beginGame());
           this.gameState.beginGame();
+          this.emitPlayersListToAll();
           this.emitGameStateToAll();
         } else if (this.gameState.gameStatus === GameStatus.postgame) {
           this.resetGame();
+          this.emitPlayersListToAll();
           this.emitGameStateToAll();
         }
       }
@@ -195,7 +203,7 @@ export default class GameRoom {
   handleMessage(viewer: Viewer, message: string): void {
     if (typeof(message) === "string" &&
         message.trim().length > 0 &&
-        viewer.pov !== undefined) {
+        typeof(viewer.pov) === "number") {
       viewer.socket.broadcast.emit('message', {
         sender: this.gameState.players[viewer.pov].name,
         text: message.trim(),
@@ -207,17 +215,17 @@ export default class GameRoom {
   resetGame() {
     this.players.forEach((player) => {player.resetGame()});
     this.gameState.resetGame();
-    this.actionQueue = [];
+    this.packetQueue = [];
     this.emitGameStateToAll();
   }
 
   // When a player disconnects, remove them from the list of viewers, fix the
   // viewer indices of all other viewers, and remove them from the game.
   handleDisconnect(viewer: Viewer) {
-    let index: number = this.viewers.indexOf(viewer);
+    let index = this.viewers.indexOf(viewer);
     this.viewers.splice(index, 1);
 
-    if (typeof viewer.pov === "number") {
+    if (typeof(viewer.pov) === "number") {
       this.gameState.players[viewer.pov].isReady = false;
       this.removePlayer(viewer.pov);
     }
@@ -226,25 +234,25 @@ export default class GameRoom {
   // If the game hasn't started, remove the player with the given POV from the
   // game.
   removePlayer(pov: number) {
-    const name: string = this.gameState.players[pov].name;
+    const name = this.gameState.players[pov].name;
     this.players.splice(pov, 1);
     if (this.gameState.gameStatus === GameStatus.pregame) {
       this.gameState.players.splice(pov, 1);
       for (let i = pov; i < this.players.length; i++) {
         this.players[i].pov = i;
       }
-      this.emitGameStateToAll();
+      this.emitPlayersListToAll();
     } else {
       this.gameState.players[pov].isConnected = false;
-      this.io.emit('newdisconnect', pov);
+      this.emitPlayersListToAll();
     }
 
     this.emitSystemMsg(`Player '${name}' has disconnected.`);
   }
 
   // Broadcast a system message to all sockets except the one passed in.
-  broadcastSystemMsg(socket, msg: string) {
-    socket.broadcast.emit('msg', {
+  broadcastSystemMessage(socket: Socket, msg: string) {
+    socket.broadcast.emit("message", {
       sender: "Game",
       text: msg,
       senderType: MessageSender.system
@@ -253,11 +261,16 @@ export default class GameRoom {
 
   // Send a system message to all sockets.
   emitSystemMsg(msg: string) {
-    this.io.emit('msg', {
+    this.io.emit("message", {
       sender: "Game",
       text: msg,
       senderType: MessageSender.system
     });
+  }
+
+  // Emit the current player list to all viewers.
+  emitPlayersListToAll() {
+    this.io.emit("playersList", this.gameState.playersList);
   }
 
   // Emit the current game state to all viewers.
