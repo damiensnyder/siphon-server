@@ -7,7 +7,7 @@ import styles from "./chat.module.css";
 
 interface ChatProps {
   messages: Message[],
-  chatCallback: (msg: string) => void
+  chatCallback: (message: string) => void
 }
 
 interface ChatState {
@@ -31,15 +31,11 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
     this.messagesInner = React.createRef();
     this.bottomMessage = React.createRef();
     this.messageJustSent = false;
-
-    this.handleTyping = this.handleTyping.bind(this);
-    this.checkIfEnterPressed = this.checkIfEnterPressed.bind(this);
-    this.sendMsg = this.sendMsg.bind(this);
   }
 
-  msgsJsx(): JSX.Element[] {
-    return this.props.messages.map((msg, i) => {
-      return <ChatMessage {...msg} key={i} />;
+  messagesJsx(): JSX.Element[] {
+    return this.props.messages.map((message, i) => {
+      return <ChatMessage {...message} key={i} />;
     });
   }
 
@@ -89,7 +85,7 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
         <div id={styles.messagesOuter}>
           <div id={styles.messagesInner}
                ref={this.messagesInner}>
-            {this.msgsJsx()}
+            {this.messagesJsx()}
             <div id={styles.bottomMessage}
                  ref={this.bottomMessage} />
           </div>
@@ -98,12 +94,12 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
           <input id={styles.inputBox}
                  placeholder="Chat here"
                  value={this.state.currentMsg}
-                 onChange={this.handleTyping}
-                 onKeyDown={this.checkIfEnterPressed}
+                 onChange={this.handleTyping.bind(this)}
+                 onKeyDown={this.checkIfEnterPressed.bind(this)}
                  ref={this.textInput} />
           <button className={general.actionBtn}
                   id={styles.sendBtn}
-                  onClick={this.sendMsg}>
+                  onClick={this.sendMsg.bind(this)}>
             Send
           </button>
         </div>
