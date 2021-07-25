@@ -5,10 +5,10 @@
   "private": true,
   "author": "Damien Snyder <damien@damiensnyder.com>",
   "scripts": {
-    "build": "sh scripts/run-tsc-except-on-jsx.sh && next build",
-    "dev": "sh scripts/run-tsc-except-on-jsx.sh && node src/backend/app.js -p $PORT",
+    "build": "sh scripts/run-tsc-except-on-tsx.sh && next build",
+    "dev": "sh scripts/run-tsc-except-on-tsx.sh && node src/backend/app.js -p $PORT",
     "start": "node src/backend/app.js -p $PORT",
-    "test": "sh scripts/run-tsc-except-on-jsx.sh && node src/backend/test.js -p $PORT"
+    "test": "sh scripts/run-tsc-except-on-tsx.sh && node src/backend/test.js -p $PORT"
   },
   "dependencies": {
     "@types/socket.io": "^3.0.2",
