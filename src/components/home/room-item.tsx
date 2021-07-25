@@ -25,7 +25,7 @@ function RoomItem(props: RoomInfo): JSX.Element {
     <div className={styles.gameItemOuter}>
       <div className={styles.gameItemInner}>
         <div className={styles.gameInfo}>
-          <div>Name: {props.name}</div>
+          <div>Name: {props.roomName}</div>
           <div>Players: {props.players}</div>
           <div>Status: {gameStatusString(props.gameStatus)}</div>
         </div>

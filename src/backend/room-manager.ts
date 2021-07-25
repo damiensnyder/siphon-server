@@ -61,7 +61,7 @@ export default class RoomManager {
      Math.log(Object.keys(this.activeRooms).length + 4) / Math.log(26)) + 1;
 
    let roomCode: string = "";
-   while (roomCode == "") {
+   while (roomCode === "") {
      for (let i = 0; i < gameCodeLength; i++) {
        roomCode += ALPHABET.charAt(Math.floor(Math.random() * numChars));
      }

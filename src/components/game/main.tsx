@@ -62,15 +62,15 @@ export default class GameView
       this.setState({
         isConnected: false
       });
-      this.addMsg({
+      this.addMessage({
         sender: "Game",
         text: "You have been disconnected.",
         senderType: MessageSender.system
       });
     });
 
-    this.socket.on('msg', (msg: Message) => {
-      this.addMsg(msg);
+    this.socket.on('message', (message: Message) => {
+      this.addMessage(message);
     });
 
     this.socket.on('update', (newGameState: PartialGameState) => {
@@ -79,13 +79,13 @@ export default class GameView
     });
   }
 
-  chatCallback(msgText: string) {
-    this.addMsg({
+  chatCallback(text: string) {
+    this.addMessage({
       sender: "You",
-      text: msgText,
+      text: text,
       senderType: MessageSender.self
     });
-    this.socket.emit("msg", msgText);
+    this.socket.emit("message", text);
   }
 
   joinCallback(joinInfo: JoinInfo) {
@@ -96,7 +96,7 @@ export default class GameView
   }
 
   // Adds a message to the Chat component.
-  addMsg(msg: Message) {
+  addMessage(msg: Message) {
     const messages: Message[] = this.state.messages;
     this.setState({
       messages: messages.concat(msg)

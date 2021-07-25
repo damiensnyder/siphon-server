@@ -7,7 +7,7 @@ import Viewer from "./viewer";
 const TEARDOWN_TIME: number = 3600000;
 
 export interface RoomInfo {
-  name: string,
+  roomName: string,
   roomCode: string,
   players: number,
   gameStatus: GameStatus,
@@ -74,7 +74,7 @@ export default class GameRoom {
       'replace': this.handleReplace.bind(this),
       'ready': this.handleReady.bind(this),
       'gameAction': this.handleGameAction.bind(this),
-      'msg': this.handleMsg.bind(this),
+      'message': this.handleMessage.bind(this),
       'disconnect': this.handleDisconnect.bind(this)
     }
     this.actionQueue = [];
@@ -192,13 +192,13 @@ export default class GameRoom {
     }
   }
 
-  handleMsg(viewer: Viewer, msg: string): void {
-    if (typeof(msg) === "string" &&
-        msg.trim().length > 0 &&
+  handleMessage(viewer: Viewer, message: string): void {
+    if (typeof(message) === "string" &&
+        message.trim().length > 0 &&
         viewer.pov !== undefined) {
-      viewer.socket.broadcast.emit('msg', {
+      viewer.socket.broadcast.emit('message', {
         sender: this.gs.players[viewer.pov].name,
-        text: msg.trim(),
+        text: message.trim(),
         senderType: MessageSender.otherPlayer
       });
     }
@@ -269,7 +269,7 @@ export default class GameRoom {
 
   roomInfo(): RoomInfo {
     return {
-      name: this.roomSettings.roomName,
+      roomName: this.roomSettings.roomName,
       roomCode: this.roomSettings.roomCode,
       players: this.players.length,
       gameStatus: this.gs.gameStatus,
