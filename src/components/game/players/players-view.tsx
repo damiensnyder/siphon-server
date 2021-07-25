@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import Player from "./player";
-// @ts-ignore
 import styles from "./players.module.css";
 
 function partiesToJsx(gs, callback) {

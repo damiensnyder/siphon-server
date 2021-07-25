@@ -1,8 +1,6 @@
 import * as React from "react";
 
-// @ts-ignore
 import general from "../../general.module.css";
-// @ts-ignore
 import styles from "./players.module.css";
 
 interface PartyProps {
