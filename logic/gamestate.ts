@@ -26,10 +26,10 @@ export interface PartialGameState {
 export default class GameState {
   gameStatus: GameStatus;
   players: Player[];
-  gameplaySettings: GameplaySettings;
+  roomSettings: RoomSettings;
 
-  constructor(settings: GameplaySettings) {
-    this.gameplaySettings = settings;
+  constructor(settings: RoomSettings) {
+    this.roomSettings = settings;
     this.gameStatus = GameStatus.pregame;
     this.players = [];
   }
@@ -74,7 +74,8 @@ export default class GameState {
   generateViewpoint(pov?: number): PartialGameState {
     return {
       isConnected: true,
-      joined: pov !== undefined
+      joined: pov !== undefined,
+      roomSettings: this.roomSettings
     };
   }
 }

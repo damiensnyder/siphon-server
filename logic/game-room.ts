@@ -273,7 +273,7 @@ export default class GameRoom {
       roomCode: this.roomSettings.roomCode,
       players: this.players.length,
       gameStatus: this.gs.gameStatus,
-      gameplaySettings: this.gs.gameplaySettings
+      gameplaySettings: this.gs.roomSettings
     };
   }
 }
