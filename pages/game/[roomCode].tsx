@@ -8,7 +8,7 @@ import GameView from '../../components/game/main';
 // class component.
 export default function RoomCodeParser(): JSX.Element {
   const router = useRouter();
-  const {gameCode: roomCode} = router.query;
+  const {roomCode: roomCode} = router.query;
   if (typeof(roomCode) !== "string") {
     return null;
   }
