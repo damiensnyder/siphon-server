@@ -217,7 +217,7 @@ export default class GameRoom {
     let index: number = this.viewers.indexOf(viewer);
     this.viewers.splice(index, 1);
 
-    if (viewer.pov !== undefined) {
+    if (typeof viewer.pov === "number") {
       this.gameState.players[viewer.pov].isReady = false;
       this.removePlayer(viewer.pov);
     }
