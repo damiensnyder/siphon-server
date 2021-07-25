@@ -98,7 +98,6 @@ export default class GameView
   // Adds a message to the Chat component.
   addMsg(msg: Message) {
     const messages: Message[] = this.state.messages;
-    messages.push(msg);
     this.setState({
       messages: messages.concat(msg)
     });
