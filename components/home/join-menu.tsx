@@ -22,6 +22,8 @@ interface JoinMenuState {
 }
 
 class JoinMenu extends React.Component<{}, JoinMenuState> {
+  isMounted: boolean
+
   constructor(props) {
     super(props);
 
@@ -34,10 +36,12 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
   }
 
   componentDidMount() {
-    this.fetchRooms().then();
+    this.isMounted = true;
+    this.fetchRooms();
   }
 
   componentWillUnmount() {
+    this.isMounted = false;
     this.setState({
       roomCode: "",
       fetchStatus: FetchStatus.pending
@@ -45,6 +49,7 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
   }
 
   async fetchRooms() {
+    if (!this.isMounted) return;
     let res = await fetch('/api/activeRooms', {
       method: 'GET'
     });
@@ -90,8 +95,8 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
     });
   }
 
-  async submitCallback() {
-    await Router.push(`/game/${this.state.roomCode}`);
+  submitCallback() {
+    Router.push(`/game/${this.state.roomCode}`);
   }
 
   render(): JSX.Element {
