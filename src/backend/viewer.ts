@@ -22,8 +22,8 @@ export default class Viewer {
     this.pov = pov;
     this.socket.on('ready', (readyInfo: unknown) =>
         this.callback(this, 'ready', readyInfo));
-    this.socket.on('msg', (messageInfo: unknown) =>
-        this.callback(this, 'msg', messageInfo));
+    this.socket.on('message', (messageInfo: unknown) =>
+        this.callback(this, 'message', messageInfo));
 
     this.socket.removeAllListeners('join');
     this.socket.removeAllListeners('replace');
@@ -39,12 +39,12 @@ export default class Viewer {
     }
   }
 
-  endGame(): void {
+  endGame() {
     this.socket.removeAllListeners('replace');
     this.socket.removeAllListeners('gameAction');
   }
 
-  resetGame(): void {
+  resetGame() {
     if (this.pov !== undefined) {
       this.socket.on('ready', (readyInfo: unknown) =>
           this.callback(this, 'ready', readyInfo));
@@ -54,7 +54,7 @@ export default class Viewer {
     }
   }
 
-  emitGameState(viewpoint: PartialGameState): void {
+  emitGameState(viewpoint: PartialGameState) {
     this.socket.emit('update', viewpoint);
   }
 }
