@@ -43,8 +43,7 @@ class JoinMenu extends React.Component<{}, JoinMenuState> {
   componentWillUnmount() {
     this.isMounted = false;
     this.setState({
-      roomCode: "",
-      fetchStatus: FetchStatus.pending
+      roomCode: ""
     });
   }
 

@@ -11,7 +11,7 @@ interface CreateMenuState {
   isPrivate: boolean
 }
 
-class CreateMenu extends React.Component<{}, CreateMenuState> {
+export default class CreateMenu extends React.Component<{}, CreateMenuState> {
   constructor(props) {
     super(props);
 
@@ -83,5 +83,3 @@ class CreateMenu extends React.Component<{}, CreateMenuState> {
     );
   }
 }
-
-export default CreateMenu;
