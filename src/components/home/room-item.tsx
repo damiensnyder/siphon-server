@@ -27,7 +27,7 @@ function RoomItem(props: RoomInfo): JSX.Element {
         <div className={styles.gameInfo}>
           <div>Name: {props.roomName}</div>
           <div>Players: {props.players}</div>
-          <div>Status: {gameStatusString(props.gameStatus)}</div>
+          <div>Status: {gameStatusString(props.roomStatus)}</div>
         </div>
         <button className={general.actionBtn}
                 onClick={() => joinRoom(props.roomCode)}>

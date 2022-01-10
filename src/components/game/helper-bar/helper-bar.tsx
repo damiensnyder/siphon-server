@@ -37,9 +37,9 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
   buttonLabel(): ReadyButtonText {
     if (typeof(this.props.pov) === "number" && this.props.playersList[this.props.pov].isReady) {
       return "Cancel";
-    } else if (this.props.gameStatus === RoomStatus.pregame) {
+    } else if (this.props.roomStatus === RoomStatus.pregame) {
       return "Ready";
-    } else if (this.props.gameStatus === RoomStatus.postgame) {
+    } else if (this.props.roomStatus === RoomStatus.postgame) {
       return "Rematch";
     } else if (this.state.helpIsVisible) {
       return "Hide";
@@ -86,7 +86,7 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
 
     if (typeof(this.props.pov) !== "number") {
       return null;
-    } else if (this.props.gameStatus === RoomStatus.pregame) {
+    } else if (this.props.roomStatus === RoomStatus.pregame) {
       return (
         <button className={priorityStyle}
                 onClick={this.handleActionButtonPressed}>

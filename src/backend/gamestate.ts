@@ -1,26 +1,13 @@
-import {RoomSettings} from "./room-manager";
-import {JoinInfo, PlayerInfo} from "./game-room";
-
-export enum RoomStatus {
-  pregame,
-  midgame,
-  postgame
-}
+import { JoinInfo, Player, RoomSettings, RoomStatus } from "./types";
 
 interface Player {
-  name: string,
-  isConnected: boolean,
-  isReady: boolean
-}
 
-export interface PartialGameState {
-  pov?: number
 }
 
 export default class GameState {
   roomStatus: RoomStatus;
   players: Player[];
-  playersList: PlayerInfo[];
+  playersList: Player[];
   roomSettings: RoomSettings;
 
   constructor(roomSettings: RoomSettings) {

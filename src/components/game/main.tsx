@@ -26,7 +26,7 @@ export default class GameView
 
     this.state = {
       isConnected: false,
-      gameStatus: RoomStatus.pregame,
+      roomStatus: RoomStatus.pregame,
       players: 0,
       roomCode: "",
       roomName: "",
@@ -120,7 +120,7 @@ export default class GameView
         </div>
         <div id={styles.gamePane}>
           {
-            this.state.gameStatus === RoomStatus.pregame ?
+            this.state.roomStatus === RoomStatus.pregame ?
                 <PregameView joinCallback={this.joinCallback.bind(this)}
                              {...this.state} /> :
                 null

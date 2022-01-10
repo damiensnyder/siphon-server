@@ -1,52 +1,15 @@
 import SocketIo, {Socket} from "socket.io";
 
-import {GameplaySettings, RoomSettings} from "./room-manager";
 import GameState, {RoomStatus} from "./gamestate";
 import Viewer from "./viewer";
+import { MessageSender, PacketInfo, Player, RoomSettings, TeardownCallback } from "./types";
 
 const TEARDOWN_TIME: number = 60 * 60 * 1000;
-
-export interface RoomInfo {
-  roomName: string,
-  roomCode: string,
-  players: number,
-  gameStatus: RoomStatus,
-  gameplaySettings?: GameplaySettings
-}
-
-interface PacketInfo {
-  viewer: Viewer,
-  type: string,
-  data?: unknown
-}
-
-export interface JoinInfo {
-  name: string
-}
-
-export interface PlayerInfo extends JoinInfo {
-  isReady: boolean,
-  isConnected: boolean
-}
-
-export interface Message {
-  sender: string,
-  text: string,
-  senderType: MessageSender
-}
-
-export enum MessageSender {
-  self,
-  system,
-  otherPlayer
-}
-
-type TeardownCallback = (roomCode: string) => void;
 
 export default class GameRoom {
   roomSettings: RoomSettings;
   viewers: Viewer[];
-  players: Viewer[];
+  players: Player[];
   gameState: GameState;
   handlingPacket: boolean;
   private packetQueue: PacketInfo[];
@@ -77,7 +40,6 @@ export default class GameRoom {
       'connect': this.handleConnect.bind(this),
       'join': this.handleJoin.bind(this),
       'replace': this.handleReplace.bind(this),
-      'ready': this.handleReady.bind(this),
       'gameAction': this.handleGameAction.bind(this),
       'message': this.handleMessage.bind(this),
       'disconnect': this.handleDisconnect.bind(this)
@@ -181,25 +143,6 @@ export default class GameRoom {
     this.emitGameStateToAll();
   }
 
-  handleReady(viewer: Viewer, isReady: unknown): void {
-    if (typeof(isReady) === "boolean") {
-      this.gameState.players[viewer.pov].isReady = isReady;
-      viewer.socket.broadcast.emit('playersList', this.gameState.playersList);
-      if (this.gameState.allPlayersAreReady()) {
-        if (this.gameState.roomStatus === RoomStatus.pregame) {
-          this.viewers.forEach((viewer) => viewer.beginGame());
-          this.gameState.beginGame();
-          this.emitPlayersListToAll();
-          this.emitGameStateToAll();
-        } else if (this.gameState.roomStatus === RoomStatus.postgame) {
-          this.resetGame();
-          this.emitPlayersListToAll();
-          this.emitGameStateToAll();
-        }
-      }
-    }
-  }
-
   handleMessage(viewer: Viewer, message: string): void {
     if (typeof(message) === "string" &&
         message.trim().length > 0 &&
@@ -226,7 +169,6 @@ export default class GameRoom {
     this.viewers.splice(index, 1);
 
     if (typeof(viewer.pov) === "number") {
-      this.gameState.players[viewer.pov].isReady = false;
       this.removePlayer(viewer.pov);
     }
   }
@@ -285,7 +227,7 @@ export default class GameRoom {
       roomName: this.roomSettings.roomName,
       roomCode: this.roomSettings.roomCode,
       players: this.players.length,
-      gameStatus: this.gameState.roomStatus,
+      roomStatus: this.gameState.roomStatus,
       gameplaySettings: this.roomSettings.gameplaySettings
     };
   }
