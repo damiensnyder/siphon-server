@@ -1,7 +1,7 @@
 import {RoomSettings} from "./room-manager";
 import {JoinInfo, PlayerInfo} from "./game-room";
 
-export enum GameStatus {
+export enum RoomStatus {
   pregame,
   midgame,
   postgame
@@ -18,14 +18,14 @@ export interface PartialGameState {
 }
 
 export default class GameState {
-  gameStatus: GameStatus;
+  roomStatus: RoomStatus;
   players: Player[];
   playersList: PlayerInfo[];
   roomSettings: RoomSettings;
 
   constructor(roomSettings: RoomSettings) {
     this.roomSettings = roomSettings;
-    this.gameStatus = GameStatus.pregame;
+    this.roomStatus = RoomStatus.pregame;
     this.players = [];
   }
 
@@ -55,11 +55,11 @@ export default class GameState {
     this.players.forEach((player) => {
       player.isReady = false;
     });
-    this.gameStatus = GameStatus.midgame;
+    this.roomStatus = RoomStatus.midgame;
   }
 
   resetGame() {
-    this.gameStatus = GameStatus.pregame;
+    this.roomStatus = RoomStatus.pregame;
   }
 
   handleGameAction(pov: number, actionInfo: unknown) {

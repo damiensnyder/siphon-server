@@ -3,7 +3,7 @@ import SocketIo from "socket.io-client";
 
 import Chat from "./chat/chat";
 import styles from "./main.module.css";
-import {GameStatus, PartialGameState} from "../../backend/gamestate";
+import {RoomStatus, PartialGameState} from "../../backend/gamestate";
 import PregameView from "./pregame/pregame-view";
 import {JoinInfo, Message, MessageSender, PlayerInfo, RoomInfo} from "../../backend/game-room";
 
@@ -26,7 +26,7 @@ export default class GameView
 
     this.state = {
       isConnected: false,
-      gameStatus: GameStatus.pregame,
+      gameStatus: RoomStatus.pregame,
       players: 0,
       roomCode: "",
       roomName: "",
@@ -120,7 +120,7 @@ export default class GameView
         </div>
         <div id={styles.gamePane}>
           {
-            this.state.gameStatus === GameStatus.pregame ?
+            this.state.gameStatus === RoomStatus.pregame ?
                 <PregameView joinCallback={this.joinCallback.bind(this)}
                              {...this.state} /> :
                 null

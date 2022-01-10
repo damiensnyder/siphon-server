@@ -4,7 +4,7 @@ import Router from "next/router";
 import general from "../general.module.css";
 import styles from "./join-menu.module.css";
 import {RoomInfo} from "../../backend/game-room";
-import {GameStatus} from "../../backend/gamestate";
+import {RoomStatus} from "../../backend/gamestate";
 
 type GameStatusString = "Ended" | "In game" | "In lobby";
 
@@ -12,11 +12,11 @@ function joinRoom(roomCode: string) {
   Router.push(`/game/${roomCode}`).then();
 }
 
-function gameStatusString(gameStatus: GameStatus): GameStatusString {
+function gameStatusString(gameStatus: RoomStatus): GameStatusString {
   switch (gameStatus) {
-    case GameStatus.pregame: return "In lobby";
-    case GameStatus.midgame: return "In game";
-    case GameStatus.postgame: return "Ended";
+    case RoomStatus.pregame: return "In lobby";
+    case RoomStatus.midgame: return "In game";
+    case RoomStatus.postgame: return "Ended";
   }
 }
 

@@ -2,7 +2,7 @@ import React from "react";
 
 import general from "../../general.module.css";
 import styles from "./helper-bar.module.css";
-import {GameStatus, PartialGameState} from "../../../backend/gamestate";
+import {RoomStatus, PartialGameState} from "../../../backend/gamestate";
 import {PlayerInfo, RoomInfo} from "../../../backend/game-room";
 
 interface HelperBarProps extends PartialGameState, RoomInfo {
@@ -37,9 +37,9 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
   buttonLabel(): ReadyButtonText {
     if (typeof(this.props.pov) === "number" && this.props.playersList[this.props.pov].isReady) {
       return "Cancel";
-    } else if (this.props.gameStatus === GameStatus.pregame) {
+    } else if (this.props.gameStatus === RoomStatus.pregame) {
       return "Ready";
-    } else if (this.props.gameStatus === GameStatus.postgame) {
+    } else if (this.props.gameStatus === RoomStatus.postgame) {
       return "Rematch";
     } else if (this.state.helpIsVisible) {
       return "Hide";
@@ -86,7 +86,7 @@ class HelperBar extends React.Component<HelperBarProps, HelperBarState> {
 
     if (typeof(this.props.pov) !== "number") {
       return null;
-    } else if (this.props.gameStatus === GameStatus.pregame) {
+    } else if (this.props.gameStatus === RoomStatus.pregame) {
       return (
         <button className={priorityStyle}
                 onClick={this.handleActionButtonPressed}>

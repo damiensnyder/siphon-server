@@ -1,16 +1,16 @@
 import SocketIo, {Socket} from "socket.io";
 
 import {GameplaySettings, RoomSettings} from "./room-manager";
-import GameState, {GameStatus} from "./gamestate";
+import GameState, {RoomStatus} from "./gamestate";
 import Viewer from "./viewer";
 
-const TEARDOWN_TIME: number = 3600000;
+const TEARDOWN_TIME: number = 60 * 60 * 1000;
 
 export interface RoomInfo {
   roomName: string,
   roomCode: string,
   players: number,
-  gameStatus: GameStatus,
+  gameStatus: RoomStatus,
   gameplaySettings?: GameplaySettings
 }
 
@@ -41,7 +41,7 @@ export enum MessageSender {
   otherPlayer
 }
 
-type TeardownCallback = (gameRoom: GameRoom) => void
+type TeardownCallback = (roomCode: string) => void;
 
 export default class GameRoom {
   roomSettings: RoomSettings;
@@ -86,7 +86,7 @@ export default class GameRoom {
     this.handlingPacket = false;
     this.enqueuePacket = this.enqueuePacket.bind(this);
     this.teardownTimer = setTimeout(
-        () => {this.teardownCallback(this)},
+        () => {this.teardownCallback(this.roomSettings.roomCode)},
         TEARDOWN_TIME);
   }
 
@@ -113,7 +113,7 @@ export default class GameRoom {
 
     clearTimeout(this.teardownTimer);
     this.teardownTimer = setTimeout(
-        () => {this.teardownCallback(this)},
+        () => {this.teardownCallback(this.roomSettings.roomCode)},
         TEARDOWN_TIME
     );
 
@@ -132,7 +132,7 @@ export default class GameRoom {
       text: "Connected to chat.",
       senderType: MessageSender.system
     });
-    if (this.gameState.gameStatus === GameStatus.midgame) {
+    if (this.gameState.roomStatus === RoomStatus.midgame) {
       viewer.beginGame();
     }
     viewer.emitGameState(this.gameState.generateViewpoint());
@@ -159,7 +159,7 @@ export default class GameRoom {
 
   handleReplace(viewer: Viewer, replacedPov: number) {
     this.emitPlayersListToAll()
-    if (this.gameState.gameStatus === GameStatus.pregame &&
+    if (this.gameState.roomStatus === RoomStatus.pregame &&
         !this.gameState.players[replacedPov].isConnected) {
       viewer.joinGame(replacedPov);
       this.players.splice(replacedPov, 0, viewer);
@@ -175,7 +175,7 @@ export default class GameRoom {
 
   handleGameAction(viewer: Viewer, actionInfo: unknown): void {
     this.gameState.handleGameAction(viewer.pov, actionInfo);
-    if (this.gameState.gameStatus === GameStatus.postgame) {
+    if (this.gameState.roomStatus === RoomStatus.postgame) {
       this.viewers.forEach((viewer) => viewer.endGame());
     }
     this.emitGameStateToAll();
@@ -186,12 +186,12 @@ export default class GameRoom {
       this.gameState.players[viewer.pov].isReady = isReady;
       viewer.socket.broadcast.emit('playersList', this.gameState.playersList);
       if (this.gameState.allPlayersAreReady()) {
-        if (this.gameState.gameStatus === GameStatus.pregame) {
+        if (this.gameState.roomStatus === RoomStatus.pregame) {
           this.viewers.forEach((viewer) => viewer.beginGame());
           this.gameState.beginGame();
           this.emitPlayersListToAll();
           this.emitGameStateToAll();
-        } else if (this.gameState.gameStatus === GameStatus.postgame) {
+        } else if (this.gameState.roomStatus === RoomStatus.postgame) {
           this.resetGame();
           this.emitPlayersListToAll();
           this.emitGameStateToAll();
@@ -236,7 +236,7 @@ export default class GameRoom {
   removePlayer(pov: number) {
     const name = this.gameState.players[pov].name;
     this.players.splice(pov, 1);
-    if (this.gameState.gameStatus === GameStatus.pregame) {
+    if (this.gameState.roomStatus === RoomStatus.pregame) {
       this.gameState.players.splice(pov, 1);
       for (let i = pov; i < this.players.length; i++) {
         this.players[i].pov = i;
@@ -285,7 +285,7 @@ export default class GameRoom {
       roomName: this.roomSettings.roomName,
       roomCode: this.roomSettings.roomCode,
       players: this.players.length,
-      gameStatus: this.gameState.gameStatus,
+      gameStatus: this.gameState.roomStatus,
       gameplaySettings: this.roomSettings.gameplaySettings
     };
   }
