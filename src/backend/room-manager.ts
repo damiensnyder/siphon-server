@@ -1,8 +1,7 @@
 import GameRoom from "./game-room";
 import { RoomInfo, RoomSettings } from "./types";
 import SocketIo from "socket.io";
-import {NextHandler} from "./app";
-import {Express} from "express";
+import Express from "express";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
@@ -72,16 +71,15 @@ export default class RoomManager {
       }
     }
 
-    res.status = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(activeRooms));
+    res.status(200).end(JSON.stringify(activeRooms));
   }
 
   sendToRoom(req: Express.Request,
              res: Express.Response,
-             nextHandler: NextHandler) {
+             svelteKitHandler: any) {
     if (this.activeRooms.hasOwnProperty(req.params.roomCode)) {
-      return nextHandler(req, res);
+      return svelteKitHandler(req, res);
     } else {
       res.redirect('/');
     }
