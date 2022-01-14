@@ -1,5 +1,5 @@
 import GameRoom from "./game-room";
-import type { RoomInfo, RoomSettings } from "./types";
+import type { RoomInfo, RoomSettings } from "../types";
 import type { Server } from "socket.io";
 import type Express from "express";
 
@@ -22,19 +22,30 @@ export default class RoomManager {
 
   // Create a game room and send the room code along with status 200.
   createRoom(req: Express.Request, res: Express.Response) {
-    const roomSettings: RoomSettings = req.body.roomSettings;
+    const roomSettings: unknown = req.body.roomSettings;
+    if (!roomSettings) {
+      res.status(400).end();
+      return;
+    }
+    const verifiedRoomSettings: RoomSettings = roomSettings as RoomSettings;
     const roomCode = this.generateRoomCode();
-    roomSettings.roomCode = roomCode;
+    verifiedRoomSettings.roomCode = roomCode;
 
-    if (roomSettings.roomName.length === 0) {
-      roomSettings.roomName = "Untitled Room";
+    if (verifiedRoomSettings.roomName.length === 0) {
+      verifiedRoomSettings.roomName = "Untitled Room";
     }
 
-    this.activeRooms[roomCode] = new GameRoom(this.io,
-        roomSettings,
-        this.teardownCallback.bind(this));
-    res.setHeader("Content-Type", "application/json");
-    res.status(200).end(JSON.stringify({roomCode: roomCode}));
+    try {
+      this.activeRooms[roomCode] = new GameRoom(
+        this.io,
+        verifiedRoomSettings,
+        this.teardownCallback.bind(this)
+      );
+
+      res.status(200).json({ roomCode: roomCode });
+    } catch (err) {
+      res.status(400).end();
+    }
   }
   
   addTestRoom(gameRoom: GameRoom) {
@@ -70,7 +81,6 @@ export default class RoomManager {
       }
     }
 
-    res.setHeader('Content-Type', 'application/json');
     res.status(200).end(JSON.stringify(activeRooms));
   }
 }

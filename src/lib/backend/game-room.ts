@@ -1,7 +1,7 @@
 import type { Namespace, Server, Socket } from "socket.io";
 
-import type { Gamestate, PacketInfo, RoomInfo, RoomSettings, TeardownCallback, Viewer, Viewpoint as Viewpoint } from "./types";
-import { RoomStatus } from "./types";
+import type { Gamestate, PacketInfo, RoomInfo, RoomSettings, TeardownCallback, Viewer, Viewpoint } from "../types";
+import { RoomStatus } from "../types";
 
 const TEARDOWN_TIME: number = 60 * 60 * 1000; // one hour
 
