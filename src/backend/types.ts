@@ -7,8 +7,16 @@ export interface RoomSettings {
   gameplaySettings: GameplaySettings
 }
 
+export interface RoomInfo extends RoomSettings {
+  numPlayers: number
+}
+
 export interface GameplaySettings {
   gameType: string
+}
+
+export interface ViewerPerspective {
+  pov?: number
 }
 
 export interface PacketInfo {
@@ -27,7 +35,7 @@ export interface Player extends JoinInfo {
 
 export interface Viewer {
   socket: Socket,
-  pov: number
+  pov?: number
 }
 
 export interface Message {

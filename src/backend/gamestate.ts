@@ -1,10 +1,9 @@
-import { JoinInfo, Player, RoomSettings, RoomStatus } from "./types";
-
-interface Player {
-
-}
+import { JoinInfo, Player, RoomSettings, RoomStatus, ViewerPerspective } from "./types";
 
 export default class GameState {
+  removePlayer(pov: number) {
+    throw new Error("Method not implemented.");
+  }
   roomStatus: RoomStatus;
   players: Player[];
   playersList: Player[];
@@ -23,25 +22,11 @@ export default class GameState {
   addPlayer(playerJoinInfo: JoinInfo) {
     this.players.push({
       name: playerJoinInfo.name,
-      isConnected: false,
-      isReady: false
+      isConnected: true
     });
-  }
-
-  // Returns true if all players are ready, false otherwise.
-  allPlayersAreReady(): boolean {
-    for (let i = 0; i < this.players.length; i++) {
-      if (!this.players[i].isReady) {
-        return false;
-      }
-    }
-    return true;
   }
 
   beginGame() {
-    this.players.forEach((player) => {
-      player.isReady = false;
-    });
     this.roomStatus = RoomStatus.midgame;
   }
 
@@ -53,7 +38,7 @@ export default class GameState {
 
   }
 
-  generateViewpoint(pov?: number): PartialGameState {
+  generateViewpoint(pov?: number): ViewerPerspective {
     return {
       pov: pov
     };
