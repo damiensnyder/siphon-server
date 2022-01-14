@@ -1,6 +1,7 @@
-import SocketIo, { Socket } from "socket.io";
+import type { Namespace, Server, Socket } from "socket.io";
 
-import { Gamestate, PacketInfo, RoomInfo, RoomSettings, RoomStatus, TeardownCallback, Viewer, Viewpoint as Viewpoint } from "./types";
+import type { Gamestate, PacketInfo, RoomInfo, RoomSettings, TeardownCallback, Viewer, Viewpoint as Viewpoint } from "./types";
+import { RoomStatus } from "./types";
 
 const TEARDOWN_TIME: number = 60 * 60 * 1000; // one hour
 
@@ -12,11 +13,11 @@ export default class GameRoom {
   handlingPacket: boolean;
   private packetQueue: PacketInfo[];
   private readonly teardownCallback: TeardownCallback;
-  private readonly io: SocketIo;
+  private readonly io: Namespace;
   private teardownTimer: NodeJS.Timeout;
 
   constructor(
-    io: SocketIo,
+    io: Server,
     roomSettings: RoomSettings,
     teardownCallback: TeardownCallback
   ) {
@@ -36,7 +37,7 @@ export default class GameRoom {
       };
       this.connectionsStarted++;
       this.enqueuePacket.bind(this)(viewer, 'connect');
-      viewer.socket.emit(this.generateViewpoint.bind(this)(viewer.pov));
+      viewer.socket.emit("gamestate", this.generateViewpoint.bind(this)(viewer.pov));
     });
 
     this.packetQueue = [];
@@ -100,15 +101,15 @@ export default class GameRoom {
   // Emit the current game state to all viewers.
   emitGameStateToAll() {
     for (const viewer of this.viewers) {
-      viewer.socket.emit(this.generateViewpoint(viewer.pov));
+      viewer.socket.emit("gamestate", this.generateViewpoint(viewer.pov));
     };
   }
 
   // Meant to be overridden by the game action handler.
-  handleGameAction(pov: number, data: unknown) {}
+  handleGameAction(_pov: number, _data: unknown) {}
 
   // Meant to be overridden by the game data sender.
-  generateViewpoint(pov: number): Viewpoint {
+  generateViewpoint(_pov: number): Viewpoint {
     return {
       roomStatus: this.gamestate.roomStatus,
       players: this.gamestate.players
@@ -117,11 +118,8 @@ export default class GameRoom {
 
   roomInfo(): RoomInfo {
     return {
-      roomName: this.roomSettings.roomName,
-      roomCode: this.roomSettings.roomCode,
       numPlayers: this.gamestate.players.length,
-      roomStatus: this.gamestate.roomStatus,
-      gameplaySettings: this.roomSettings.gameplaySettings
+      ...this.roomSettings
     };
   }
 }

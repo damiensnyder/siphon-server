@@ -1,6 +1,7 @@
-import Express from "express";
 import * as Http from "http";
-import SocketIo from "socket.io";
+import Express from "express";
+import { Server } from "socket.io";
+import { handler } from "../../target/handler";
 
 import RoomManager from "./room-manager";
 
@@ -9,7 +10,7 @@ expressApp.use(Express.urlencoded({ extended: true }));
 expressApp.use(Express.json());
 
 const httpServer: Http.Server = Http.createServer(expressApp);
-const io: SocketIo = new SocketIo(httpServer);
+const io: Server = new Server(httpServer);
 
 export const roomManager: RoomManager = new RoomManager(io);
 
@@ -25,17 +26,8 @@ expressApp.get("/activeRooms",
   roomManager.listActiveRooms(req, res);
 });
 
-// Send people to the corresponding game room when they join one
-expressApp.get("/game/:roomCode",
-    (req: Express.Request, res: Express.Response) => {
-  return roomManager.sendToRoom(req, res, null);
-});
-
 // For all other paths, defer to SvelteKit's handler
-expressApp.get("*",
-    (req: Express.Request, res: Express.Response) => {
-  return null;
-});
+expressApp.use(handler);
 
 // Start the server for socket.io
 const envPort = parseInt(process.env.PORT);

@@ -1,15 +1,15 @@
 import GameRoom from "./game-room";
-import { RoomInfo, RoomSettings } from "./types";
-import SocketIo from "socket.io";
-import Express from "express";
+import type { RoomInfo, RoomSettings } from "./types";
+import type { Server } from "socket.io";
+import type Express from "express";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export default class RoomManager {
   activeRooms: Record<string, GameRoom>;
-  io: SocketIo;
+  io: Server;
 
-  constructor(io: SocketIo) {
+  constructor(io: Server) {
     this.io = io;
     this.activeRooms = {};
   }
@@ -33,9 +33,8 @@ export default class RoomManager {
     this.activeRooms[roomCode] = new GameRoom(this.io,
         roomSettings,
         this.teardownCallback.bind(this));
-    res.status = 200;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({roomCode: roomCode}));
+    res.status(200).end(JSON.stringify({roomCode: roomCode}));
   }
   
   addTestRoom(gameRoom: GameRoom) {
@@ -62,7 +61,7 @@ export default class RoomManager {
     return roomCode;
   }
 
-  listActiveRooms(req: Express.Request, res: Express.Response) {
+  listActiveRooms(_req: Express.Request, res: Express.Response) {
     let activeRooms: RoomInfo[] = [];
 
     for (const [, game] of Object.entries(this.activeRooms)) {
@@ -73,15 +72,5 @@ export default class RoomManager {
 
     res.setHeader('Content-Type', 'application/json');
     res.status(200).end(JSON.stringify(activeRooms));
-  }
-
-  sendToRoom(req: Express.Request,
-             res: Express.Response,
-             svelteKitHandler: any) {
-    if (this.activeRooms.hasOwnProperty(req.params.roomCode)) {
-      return svelteKitHandler(req, res);
-    } else {
-      res.redirect('/');
-    }
   }
 }
