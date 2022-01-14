@@ -51,7 +51,7 @@ export default class GameRoom {
 
   // Sends actions to a queue, which is handled one at a time so the items
   // don't interfere with each other.
-  enqueuePacket(viewer: Viewer, packetType: string, data?: unknown) {
+  enqueuePacket(viewer: Viewer, packetType: string, data?: unknown): void {
     this.packetQueue.push({
       viewer: viewer,
       type: packetType,
@@ -66,7 +66,7 @@ export default class GameRoom {
 
   // Handle the first packet in the queue. If there are no more packets in the
   // queue, show that the queue is empty. Otherwise, handle the next packet.
-  handlePacket() {
+  handlePacket(): void {
     const { viewer, type, data } = this.packetQueue.splice(0, 1)[0];
     if (type === "connect") {
       this.viewers.push(viewer);
@@ -99,7 +99,7 @@ export default class GameRoom {
   }
 
   // Emit the current game state to all viewers.
-  emitGameStateToAll() {
+  emitGameStateToAll(): void {
     for (const viewer of this.viewers) {
       viewer.socket.emit("gamestate", this.generateViewpoint(viewer.pov));
     };

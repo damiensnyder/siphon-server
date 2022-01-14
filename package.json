@@ -7,22 +7,11 @@
     "start": "node app.js",
     "package": "svelte-kit package",
     "preview": "svelte-kit preview",
-    "lint": "concurrently --kill-others-on-fail \"npm:lint:*\"",
-    "lint:prettier": "prettier --check --loglevel=warn src",
-    "lint:tsc": "tsc --noEmit",
-    "lint:eslint": "eslint --ext=js,ts --max-warnings=0 src",
-    "format": "prettier --write src && eslint --ext=js,ts --fix src"
+    "lint": "tsc --noEmit"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.61",
     "@sveltejs/kit": "next",
-    "@typescript-eslint/eslint-plugin": "^4.31.1",
-    "@typescript-eslint/parser": "^4.31.1",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-svelte3": "^3.2.1",
-    "prettier": "^2.4.1",
-    "prettier-plugin-svelte": "^2.4.0",
     "svelte": "^3.44.0",
     "svelte-check": "^2.2.6",
     "svelte-preprocess": "^4.9.4",

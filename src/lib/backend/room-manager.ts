@@ -16,12 +16,12 @@ export default class RoomManager {
 
   // Called by a game room when it is ready to tear down. Allows the room code
   // to be reused.
-  teardownCallback(roomCode: string) {
+  teardownCallback(roomCode: string): void {
     delete this.activeRooms[roomCode];
   }
 
   // Create a game room and send the room code along with status 200.
-  createRoom(req: Express.Request, res: Express.Response) {
+  createRoom(req: Express.Request, res: Express.Response): void {
     const roomSettings: unknown = req.body.roomSettings;
     if (!roomSettings) {
       res.status(400).end();
@@ -48,7 +48,7 @@ export default class RoomManager {
     }
   }
   
-  addTestRoom(gameRoom: GameRoom) {
+  addTestRoom(gameRoom: GameRoom): void {
     this.activeRooms[gameRoom.roomSettings.roomCode] = gameRoom;
   }
 
@@ -72,8 +72,8 @@ export default class RoomManager {
     return roomCode;
   }
 
-  listActiveRooms(_req: Express.Request, res: Express.Response) {
-    let activeRooms: RoomInfo[] = [];
+  listActiveRooms(_req: Express.Request, res: Express.Response): void {
+    const activeRooms: RoomInfo[] = [];
 
     for (const [, game] of Object.entries(this.activeRooms)) {
       if (!game.roomSettings.isPrivate) {
@@ -81,6 +81,6 @@ export default class RoomManager {
       }
     }
 
-    res.status(200).end(JSON.stringify(activeRooms));
+    res.status(200).end(JSON.stringify({ rooms: activeRooms }));
   }
 }
