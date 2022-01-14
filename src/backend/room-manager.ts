@@ -1,20 +1,10 @@
-import GameRoom, {RoomInfo} from "./game-room";
+import GameRoom from "./game-room";
+import { RoomInfo, RoomSettings } from "./types";
 import SocketIo from "socket.io";
 import {NextHandler} from "./app";
 import {Express} from "express";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-
-export interface RoomSettings {
-  roomName: string,
-  roomCode: string,
-  isPrivate: boolean,
-  gameplaySettings: GameplaySettings
-}
-
-export interface GameplaySettings {
-
-}
 
 export default class RoomManager {
   activeRooms: Record<string, GameRoom>;
@@ -53,6 +43,8 @@ export default class RoomManager {
     this.activeRooms[gameRoom.roomSettings.roomCode] = gameRoom;
   }
 
+  // Generate a random sequence of lowercase letters, without colliding with
+  // room codes already in use and without being short enough to guess.
   generateRoomCode(): string {
     const numChars: number = ALPHABET.length;
     const gameCodeLength: number = Math.ceil(

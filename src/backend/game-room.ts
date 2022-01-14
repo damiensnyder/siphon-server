@@ -1,58 +1,55 @@
 import SocketIo, { Socket } from "socket.io";
 
-import GameState from "./gamestate";
-import { JoinInfo, MessageSender, PacketInfo, RoomInfo, RoomSettings, RoomStatus, TeardownCallback, Viewer } from "./types";
+import { Gamestate, PacketInfo, RoomInfo, RoomSettings, RoomStatus, TeardownCallback, Viewer, Viewpoint as Viewpoint } from "./types";
 
-const TEARDOWN_TIME: number = 60 * 60 * 1000;
+const TEARDOWN_TIME: number = 60 * 60 * 1000; // one hour
 
 export default class GameRoom {
   roomSettings: RoomSettings;
   viewers: Viewer[];
-  gameState: GameState;
+  connectionsStarted: number;
+  gamestate: Gamestate;
   handlingPacket: boolean;
   private packetQueue: PacketInfo[];
   private readonly teardownCallback: TeardownCallback;
   private readonly io: SocketIo;
   private teardownTimer: NodeJS.Timeout;
-  private readonly handlers: {
-    [key: string]: (viewer: Viewer, data: unknown) => void
-  };
 
-  constructor(io: SocketIo,
-              roomSettings: RoomSettings,
-              teardownCallback: TeardownCallback) {
-    this.io = io.of(`/game/${roomSettings.roomCode}`);
+  constructor(
+    io: SocketIo,
+    roomSettings: RoomSettings,
+    teardownCallback: TeardownCallback
+  ) {
     this.roomSettings = roomSettings;
-    this.gameState = new GameState(roomSettings);
-    this.teardownCallback = teardownCallback;
-
+    this.gamestate = {
+      roomStatus: RoomStatus.pregame,
+      players: []
+    };
     this.viewers = [];
+    this.connectionsStarted = 0;
 
+    this.io = io.of(`/game/${roomSettings.roomCode}`);
     this.io.on('connection', (socket: Socket) => {
       const viewer = {
-        socket: socket
+        socket: socket,
+        pov: this.connectionsStarted
       };
-      this.enqueuePacket(viewer, 'connect', null);
+      this.connectionsStarted++;
+      this.enqueuePacket.bind(this)(viewer, 'connect');
+      viewer.socket.emit(this.generateViewpoint.bind(this)(viewer.pov));
     });
 
-    this.handlers = {
-      'connect': this.handleConnect.bind(this),
-      'join': this.handleJoin.bind(this),
-      'replace': this.handleReplace.bind(this),
-      'gameAction': this.handleGameAction.bind(this),
-      'message': this.handleMessage.bind(this),
-      'disconnect': this.handleDisconnect.bind(this)
-    }
     this.packetQueue = [];
     this.handlingPacket = false;
-    this.enqueuePacket = this.enqueuePacket.bind(this);
+    this.teardownCallback = teardownCallback;
     this.teardownTimer = setTimeout(
-        () => {this.teardownCallback(this.roomSettings.roomCode)},
-        TEARDOWN_TIME);
+      () => this.teardownCallback(this.roomSettings.roomCode),
+      TEARDOWN_TIME
+    );
   }
 
-  // Sends actions to a queue that can be handled one at a time so they don't
-  // interfere with each other.
+  // Sends actions to a queue, which is handled one at a time so the items
+  // don't interfere with each other.
   enqueuePacket(viewer: Viewer, packetType: string, data?: unknown) {
     this.packetQueue.push({
       viewer: viewer,
@@ -67,10 +64,25 @@ export default class GameRoom {
   }
 
   // Handle the first packet in the queue. If there are no more packets in the
-  // queue, show that it is done. Otherwise, handle the next packet.
+  // queue, show that the queue is empty. Otherwise, handle the next packet.
   handlePacket() {
-    const packet = this.packetQueue.splice(0, 1)[0];
-    this.handlers[packet.type](packet.viewer, packet.data);
+    const { viewer, type, data } = this.packetQueue.splice(0, 1)[0];
+    if (type === "connect") {
+      this.viewers.push(viewer);
+      viewer.socket.on("disconnect", () => {
+        this.enqueuePacket.bind(this)(viewer, "disconnect");
+      });
+      viewer.socket.on("action", (data: unknown) => {
+        this.enqueuePacket.bind(this)(viewer, "action", data);
+      });
+    } else if (type === "disconnect") {
+      this.viewers = this.viewers.filter((v) => v !== viewer);
+      this.handleGameAction(viewer.pov, {
+        type: "disconnect"
+      });
+    } else {
+      this.handleGameAction(viewer.pov, data);
+    }
 
     clearTimeout(this.teardownTimer);
     this.teardownTimer = setTimeout(
@@ -85,122 +97,30 @@ export default class GameRoom {
     }
   }
 
-  handleConnect(viewer: Viewer) {
-    this.viewers.push(viewer);
-    viewer.socket.emit('msg', {
-      sender: "Game",
-      text: "Connected to chat.",
-      senderType: MessageSender.system
-    });
-    viewer.socket.emit(this.gameState.generateViewpoint());
-  }
-
-  // Add the player to the game, unless their join info is invalid.
-  handleJoin(viewer: Viewer, joinInfo: unknown) {
-    if (this.gameState.isValidJoinInfo(joinInfo)) {
-      viewer.pov = this.gameState.players.length;
-      const verifiedJoinInfo = joinInfo as JoinInfo;
-      this.gameState.addPlayer(verifiedJoinInfo);
-
-      this.broadcastSystemMessage(
-        viewer.socket,
-        `Player '${verifiedJoinInfo.name}' has joined the game.`
-      );
-      this.emitGameStateToAll();
-    } else {
-      viewer.socket.emit(this.gameState.generateViewpoint(viewer.pov));
-    }
-  }
-
-  handleReplace(viewer: Viewer, replacedPov: unknown) {
-    if (this.gameState.roomStatus === RoomStatus.midgame &&
-        typeof(replacedPov) === "number" &&
-        !this.gameState.players[replacedPov].isConnected) {
-      viewer.pov = replacedPov;
-      this.gameState.players[replacedPov].isConnected = true;
-      viewer.socket.emit(this.gameState.generateViewpoint(replacedPov));
-      
-      this.broadcastSystemMessage(
-        viewer.socket,
-        `Player '${this.gameState.players[replacedPov].name}' has been replaced.`
-      );
-    }
-    this.emitGameStateToAll();
-  }
-      
-  handleGameAction(viewer: Viewer, actionInfo: unknown): void {
-    this.gameState.handleGameAction(viewer.pov, actionInfo);
-    this.emitGameStateToAll();
-  }
-
-  handleMessage(viewer: Viewer, message: string): void {
-    if (typeof(message) === "string" &&
-        message.trim().length > 0 &&
-        typeof(viewer.pov) === "number") {
-      viewer.socket.broadcast.emit('message', {
-        sender: this.gameState.players[viewer.pov].name,
-        text: message.trim(),
-        senderType: MessageSender.otherPlayer
-      });
-    }
-  }
-
-  resetGame() {
-    this.gameState.resetGame();
-    this.emitGameStateToAll();
-  }
-
-  // When a player disconnects, remove them from the list of viewers, fix the
-  // viewer indices of all other viewers, and remove them from the game.
-  handleDisconnect(viewer: Viewer) {
-    let index = this.viewers.indexOf(viewer);
-    this.viewers.splice(index, 1);
-
-    if (typeof(viewer.pov) === "number") {
-      this.gameState.removePlayer(viewer.pov);
-      this.emitGameStateToAll();
-      const name = this.gameState.players[viewer.pov].name;
-      this.emitSystemMsg(`Player '${name}' has disconnected.`);
-
-      for (const v of this.viewers) {
-        if (typeof(v.pov) === "number" && v.pov > viewer.pov) {
-          v.pov -= 1;
-        }
-      }
-    }
-  }
-
-  // Broadcast a system message to all sockets except the one passed in.
-  broadcastSystemMessage(socket: Socket, msg: string) {
-    socket.broadcast.emit("message", {
-      sender: "Game",
-      text: msg,
-      senderType: MessageSender.system
-    });
-  }
-
-  // Send a system message to all sockets.
-  emitSystemMsg(msg: string) {
-    this.io.emit("message", {
-      sender: "Game",
-      text: msg,
-      senderType: MessageSender.system
-    });
-  }
-
   // Emit the current game state to all viewers.
   emitGameStateToAll() {
-    this.viewers.forEach((viewer, i) => {
-      viewer.socket.emit(this.gameState.generateViewpoint(viewer.pov));
-    });
+    for (const viewer of this.viewers) {
+      viewer.socket.emit(this.generateViewpoint(viewer.pov));
+    };
+  }
+
+  // Meant to be overridden by the game action handler.
+  handleGameAction(pov: number, data: unknown) {}
+
+  // Meant to be overridden by the game data sender.
+  generateViewpoint(pov: number): Viewpoint {
+    return {
+      roomStatus: this.gamestate.roomStatus,
+      players: this.gamestate.players
+    };
   }
 
   roomInfo(): RoomInfo {
     return {
       roomName: this.roomSettings.roomName,
       roomCode: this.roomSettings.roomCode,
-      numPlayers: this.gameState.players.length,
-      roomStatus: this.gameState.roomStatus,
+      numPlayers: this.gamestate.players.length,
+      roomStatus: this.gamestate.roomStatus,
       gameplaySettings: this.roomSettings.gameplaySettings
     };
   }

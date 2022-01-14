@@ -4,20 +4,25 @@ export interface RoomSettings {
   roomName: string,
   roomCode: string,
   roomStatus: RoomStatus,
+  isPrivate: boolean,
   gameplaySettings: GameplaySettings
 }
 
+// Information describing a game room, shown on the listing of games
 export interface RoomInfo extends RoomSettings {
   numPlayers: number
 }
 
-export interface GameplaySettings {
-  gameType: string
+// Settings for the game that will be played in the room
+export interface GameplaySettings {}
+
+export interface Viewpoint {
+  pov?: string,
+  roomStatus: RoomStatus
+  players: Player[]
 }
 
-export interface ViewerPerspective {
-  pov?: number
-}
+export interface Gamestate extends Viewpoint {}
 
 export interface PacketInfo {
   viewer: Viewer,
@@ -29,25 +34,11 @@ export interface JoinInfo {
   name: string
 }
 
-export interface Player extends JoinInfo {
-  isConnected: boolean
-}
+export interface Player extends JoinInfo {}
 
 export interface Viewer {
   socket: Socket,
-  pov?: number
-}
-
-export interface Message {
-  sender: string,
-  text: string,
-  senderType: MessageSender
-}
-
-export enum MessageSender {
-  self,
-  system,
-  otherPlayer
+  pov: number
 }
 
 export enum RoomStatus {
