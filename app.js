@@ -14,12 +14,26 @@ export const roomManager = new RoomManager(io);
 
 // Create a game room
 app.post("/createRoom", (req, res) => {
-  roomManager.createRoom(req, res);
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+  req.on("end", () => {
+    try {
+      res.statusCode = 200;
+      res.end(JSON.stringify(roomManager.createRoom(JSON.parse(body))));
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 400;
+      res.end();
+    }
+  });
 });
 
 // List active game rooms
-app.get("/activeRooms", (req, res) => {
-  roomManager.listActiveRooms(req, res);
+app.get("/activeRooms", (_req, res) => {
+  res.statusCode = 200;
+  res.end(JSON.stringify(roomManager.listActiveRooms()));
 });
 
 // Defer to SvelteKit's handler
