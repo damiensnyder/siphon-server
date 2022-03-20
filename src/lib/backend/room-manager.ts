@@ -41,13 +41,13 @@ export default class RoomManager {
   // room codes already in use and without being short enough to guess.
   generateRoomCode(): string {
     const numChars: number = ALPHABET.length;
-    const gameCodeLength: number = Math.ceil(
+    const roomCodeLength: number = 3 + Math.ceil(
       Math.log(Object.keys(this.activeRooms).length + 2) / Math.log(26)
-    ) + 3;
+    );
 
     let roomCode: string = "";
     while (roomCode === "") {
-      for (let i = 0; i < gameCodeLength; i++) {
+      for (let i = 0; i < roomCodeLength; i++) {
         roomCode += ALPHABET.charAt(Math.floor(Math.random() * numChars));
       }
       if (this.activeRooms.hasOwnProperty(roomCode)) {
@@ -60,9 +60,9 @@ export default class RoomManager {
   listActiveRooms(): { rooms: RoomInfo[] } {
     const activeRooms: RoomInfo[] = [];
 
-    for (const [, game] of Object.entries(this.activeRooms)) {
-      if (!game.roomSettings.isPrivate) {
-        activeRooms.push(game.roomInfo());
+    for (const [, room] of Object.entries(this.activeRooms)) {
+      if (!room.roomSettings.isPrivate) {
+        activeRooms.push(room.roomInfo());
       }
     }
     
