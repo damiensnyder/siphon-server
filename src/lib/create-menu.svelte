@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createForm } from "svelte-forms-lib";
+  import { goto } from "$app/navigation";
 
   const { form, handleChange, handleSubmit } = createForm({
     initialValues: {
@@ -9,11 +10,11 @@
     onSubmit: async (values) => {
       const res = await fetch("/createRoom", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify(values),
       });
       if (res.ok) {
         const body: { roomCode: string } = await res.json();
-        window.location.assign(`/game/${body.roomCode}`);
+        goto(`/game/${body.roomCode}`);
       }
     }
   });
