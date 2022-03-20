@@ -1,2 +1,10 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+import CreateMenu from "$lib/create-menu.svelte";
+import JoinMenu from "$lib/join-menu.svelte";
+</script>
+
+<h1>Siphon Server</h1>
+<div>
+  <CreateMenu />
+  <JoinMenu />
+</div>

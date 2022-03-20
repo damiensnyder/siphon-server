@@ -21,21 +21,20 @@ export default class RoomManager {
 
   // Create a game room and send the room code along with status 200.
   createRoom(body: any): { roomCode: string } {
-    const roomSettings: RoomSettings = body;
-    const roomCode = this.generateRoomCode();
-    roomSettings.roomCode = roomCode;
+    const roomSettings = body || {};
+    roomSettings.roomCode = this.generateRoomCode();
 
-    if (roomSettings.roomName.length === 0) {
+    if (typeof roomSettings.roomName != "string" || roomSettings.roomName.length === 0) {
       roomSettings.roomName = "Untitled Room";
     }
 
-    this.activeRooms[roomCode] = new GameRoom(
+    this.activeRooms[roomSettings.roomCode] = new GameRoom(
       this.io,
       roomSettings,
       this.teardownCallback.bind(this)
     );
 
-    return { roomCode: roomCode };
+    return { roomCode: roomSettings.roomCode };
   }
 
   // Generate a random sequence of lowercase letters, without colliding with
