@@ -1,7 +1,6 @@
 import type { Namespace, Server, Socket } from "socket.io";
 
 import type { Gamestate, PacketInfo, RoomInfo, RoomSettings, TeardownCallback, Viewer, Viewpoint } from "../types";
-import { RoomStatus } from "../types";
 
 const TEARDOWN_TIME: number = 60 * 60 * 1000; // one hour
 
@@ -23,7 +22,6 @@ export default class GameRoom {
   ) {
     this.roomSettings = roomSettings;
     this.gamestate = {
-      roomStatus: RoomStatus.pregame,
       players: []
     };
     this.viewers = [];
@@ -69,6 +67,7 @@ export default class GameRoom {
   handlePacket(): void {
     const { viewer, type, data } = this.packetQueue.splice(0, 1)[0];
     if (type === "connect") {
+      // on connection, add viewer to the list of viewers and give its socket new handlers
       this.viewers.push(viewer);
       viewer.socket.on("disconnect", () => {
         this.enqueuePacket.bind(this)(viewer, "disconnect");
@@ -77,11 +76,13 @@ export default class GameRoom {
         this.enqueuePacket.bind(this)(viewer, "action", data);
       });
     } else if (type === "disconnect") {
+      // on disconnect, remove viewer from the list of viewers and handle its disconnect game logic
       this.viewers = this.viewers.filter((v) => v !== viewer);
       this.handleGameAction(viewer.pov, {
         type: "disconnect"
       });
     } else {
+      // if the packet was an action, handle the action's game logic
       this.handleGameAction(viewer.pov, data);
     }
 
@@ -105,13 +106,12 @@ export default class GameRoom {
     };
   }
 
-  // Meant to be overridden by the game action handler.
+  // Handles an action's game logic. Meant to be overridden.
   handleGameAction(_pov: number, _data: unknown) {}
 
-  // Meant to be overridden by the game data sender.
+  // Returns the viewpoint of the viewer with the given POV. Meant to be overridden.
   generateViewpoint(_pov: number): Viewpoint {
     return {
-      roomStatus: this.gamestate.roomStatus,
       players: this.gamestate.players
     };
   }

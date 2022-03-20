@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createForm } from "svelte-forms-lib";
   import { goto } from "$app/navigation";
-import type { RoomInfo, RoomSettings } from "./types";
+  import type { RoomInfo } from "./types";
 
   const { form, handleChange, handleSubmit } = createForm({
     initialValues: {
