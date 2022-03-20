@@ -65,7 +65,6 @@ export default class RoomManager {
         activeRooms.push(game.roomInfo());
       }
     }
-
     
     return { rooms: activeRooms };
   }

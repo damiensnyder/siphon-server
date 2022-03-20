@@ -20,6 +20,8 @@
   });
 </script>
 
+<h2>Create Game</h2>
+
 <form on:submit={handleSubmit}>
   <label>Room name:
     <input

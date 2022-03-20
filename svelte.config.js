@@ -25,6 +25,7 @@ class RoomManagerWrapper {
         res.end(JSON.stringify(this.roomManager.createRoom(JSON.parse(body))));
       } catch (err) {
         console.log(err);
+				console.log(body);
         res.statusCode = 400;
         res.end();
       }

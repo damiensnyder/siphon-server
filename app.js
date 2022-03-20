@@ -23,7 +23,6 @@ app.post("/createRoom", (req, res) => {
       res.statusCode = 200;
       res.end(JSON.stringify(roomManager.createRoom(JSON.parse(body))));
     } catch (err) {
-      console.log(err);
       res.statusCode = 400;
       res.end();
     }
@@ -33,7 +32,7 @@ app.post("/createRoom", (req, res) => {
 // List active game rooms
 app.get("/activeRooms", (_req, res) => {
   res.statusCode = 200;
-  res.end(JSON.stringify(roomManager.listActiveRooms()));
+  res.json(roomManager.listActiveRooms());
 });
 
 // Defer to SvelteKit's handler
