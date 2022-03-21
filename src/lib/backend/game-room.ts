@@ -112,7 +112,8 @@ export default class GameRoom {
   // Returns the viewpoint of the viewer with the given POV. Meant to be overridden.
   generateViewpoint(_pov: number): Viewpoint {
     return {
-      players: this.gamestate.players
+      players: this.gamestate.players,
+      ...this.roomSettings
     };
   }
 

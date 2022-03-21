@@ -17,7 +17,7 @@ export interface RoomInfo extends RoomSettings {
 export interface GameplaySettings {}
 
 // The information known by a single player
-export interface Viewpoint {
+export interface Viewpoint extends RoomSettings {
   pov?: string,
   players: Player[]
 }
