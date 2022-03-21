@@ -9,7 +9,6 @@ const socket = new io(relativeUrl);
 
 let connected = false;
 let gamestate: Viewpoint | null = null;
-let inviteLinkText;
 
 socket.on('connect', () => {
   connected = true;
@@ -23,25 +22,21 @@ socket.on('gamestate', (newGamestate: Viewpoint) => {
   gamestate = newGamestate;
 });
 
+// A callback for any game actions you execute from other components
 function actionCallback(action: Action) {
   socket.emit('action', action);
   // do client-side updating if you want
 }
 
 function copyInviteLink() {
-  inviteLinkText.select();
-  document.execCommand("copy");
-  inviteLinkText.setSelectionRange(0, 0);
+  navigator.clipboard.writeText(absoluteUrl);
 }
 </script>
 
 {#if connected && gamestate != null}
 <h1>{gamestate.roomName}</h1>
 <p>Invite a friend:</p>
-<input
-  value={absoluteUrl}
-  bind:this={inviteLinkText}
-  readonly />
+<input value={absoluteUrl} readonly />
 <button on:click={copyInviteLink}>Copy</button>
 <p>gamestate: {JSON.stringify(gamestate)}</p>
 {:else}
